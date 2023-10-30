@@ -1,31 +1,61 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import { ref } from 'vue'
+import useStore from './storage'
+let store = useStore();
+let folding = ref(false);
+function a() {
+  folding.value = !folding.value;
+  console.log(folding.value);
+  return folding.value;
+}
+globalThis.a = a
 </script>
 
 <template>
-  doom
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="header">
+    <button @click="a" style="width:30px;height:30px;margin:10px;"></button>
+    {{ store.name }}
   </div>
-  <HelloWorld msg="Vite + Vue" />
+  <router-view></router-view>
+  <div class="mask" @click="a"
+    :style="{ backgroundColor: folding ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.8)', zIndex: folding ? -1 : 1 }">
+    <aside class="sidebar" @click.stop="console.log('hello')">阿弥诺斯</aside>
+  </div>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.header {
+  position: absolute;
+  width: 100%;
+  height: 8%;
+  min-height: 2rem;
+  left: 0px;
+  top: 0px;
+  background-color: var(--primary);
+
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+.mask {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0px;
+  top: 0px;
+  z-index: 1;
+
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+
+.mask .sidebar {
+  position: absolute;
+  width: 20%;
+  min-width: 300px;
+  height: 100%;
+  left: 0px;
+  top: 0px;
+  z-index: 1px;
+  background-color: var(--accent);
+}</style>
