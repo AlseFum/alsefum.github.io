@@ -1,5 +1,7 @@
 import { createRouter,createWebHistory } from "vue-router";
+import idle from './idle.vue'
+import emulator     from './emulator.vue'
 export default createRouter({
-    routes:[],
+    routes:[{path:"/idle",component:idle},{path:"/emulator",component:emulator}],
     history:createWebHistory()
 })

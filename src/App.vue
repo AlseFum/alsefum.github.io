@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import useStore from './storage'
 let store = useStore();
-let folding = ref(false);
+let folding = ref(true);
 function a() {
   folding.value = !folding.value;
   console.log(folding.value);
@@ -12,11 +12,12 @@ globalThis.a = a
 </script>
 
 <template>
+  
   <div class="header">
     <button @click="a" style="width:30px;height:30px;margin:10px;"></button>
     {{ store.name }}
   </div>
-  <router-view></router-view>
+  <div style="top:80px;left:30px"><router-view></router-view></div>
   <div class="mask" @click="a"
     :style="{ backgroundColor: folding ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.8)', zIndex: folding ? -1 : 1 }">
     <aside class="sidebar" @click.stop="console.log('hello')">阿弥诺斯</aside>
@@ -25,7 +26,7 @@ globalThis.a = a
 
 <style scoped>
 .header {
-  position: absolute;
+  /* position: absolute; */
   width: 100%;
   height: 8%;
   min-height: 2rem;
@@ -46,7 +47,6 @@ globalThis.a = a
   left: 0px;
   top: 0px;
   z-index: 1;
-
 }
 
 .mask .sidebar {
@@ -58,4 +58,5 @@ globalThis.a = a
   top: 0px;
   z-index: 1px;
   background-color: var(--accent);
+  filter:grayscale(0.9)
 }</style>
