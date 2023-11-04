@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "pub":"git add .\n git commit -m \"update\"\n git push origin"
+    "pub":"git add . &&  git commit -m \"update\" && git push origin"
   },
   "dependencies": {
     "pinia": "^2.1.7",
