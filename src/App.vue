@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import useStore from './storage'
 let store = useStore();
+
 let folding = ref(true);
 function a() {
   folding.value = !folding.value;
@@ -15,12 +16,17 @@ globalThis.a = a
   
   <div class="header">
     <button @click="a" style="width:30px;height:30px;margin:10px;"></button>
-    {{ store.name }}
+    {{ store.title }}
   </div>
-  <div style="top:80px;left:30px"><router-view></router-view></div>
+  <div style="top:80px;left:30px">
+    here the router
+    <router-view></router-view>
+  </div>
   <div class="mask" @click="a"
     :style="{ backgroundColor: folding ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.8)', zIndex: folding ? -1 : 1 }">
-    <aside class="sidebar" @click.stop="console.log('hello')">阿弥诺斯</aside>
+    <aside class="sidebar" @click.stop="console.log('hello')">阿弥诺斯
+    
+    <router-link :to="{ path:'/#/emulator' }">emulator</router-link></aside>
   </div>
 </template>
 

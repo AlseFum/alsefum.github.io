@@ -2,12 +2,12 @@ import { defineStore } from "pinia";
 export default defineStore("mainpage",{
     state: () => {
         return {
-            name: "mainpage"
+            title: "mainpage"
         }
     },
     actions: {
-        setName(name) {
-            this.name = name
+        setTitle(title) {
+            this.title = title
         }
     }
 })
