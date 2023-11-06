@@ -8,7 +8,7 @@ let output=ref(0);
 let settingMax=ref(0);
 function roll(){
     let n=0;
-    diceGroup.forEach(d=>{
+    diceGroup.value.forEach(d=>{
         for(let ii=0;ii<d.count;ii++){
             n+=Math.floor(Math.random()*d.max)+1;
         }
