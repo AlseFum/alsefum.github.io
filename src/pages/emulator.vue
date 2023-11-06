@@ -45,6 +45,7 @@ onBeforeMount(()=>{
     <button v-for=" i in curEmuInst?.currentScene?.inputs" @click="i.exec(curEmuInst.context,curEmuInst)">{{ i.label }}</button>
   </div>
   <div><input v-model="command" @keydown.enter="curEmuInst.command(command)" /></div>
+  <div>{{ curEmuInst.env.logArea }}</div>
 </template>
 <style scoped>
 div pre {
