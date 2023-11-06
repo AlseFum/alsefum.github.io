@@ -1,50 +1,43 @@
 <script setup>
-import { ref, computed ,onBeforeMount } from 'vue'
+import { ref, computed, onBeforeMount } from 'vue'
 import { Emulator, Context } from '../emulation'
+import defaultEmuDef from '../emulation/default.js'
 const props = defineProps({
   emulation: { type: Object }
 })
-const curEmuDef = computed(() => props.emulation ?? {
-  env: {print(n) {
+
+const curEmuDef = computed(() => props.emulation ?? Object.assign(defaultEmuDef, {
+  env: {
+    print(n) {
       stageHTML.value = n;
-    }},
-  scenes: (function () {
-    let n = new Map();
-     n.set("n", {
-      title:"n",
-      render() { return "asef" },
-      inputs: [{ label: "yes", exec() { stageHTML.value += "yes" } }, {
-        label: "no",
-        exec() { stageHTML.value += "no" }
-      },{
-        label: "go m",
-        exec(c,e) { e.goto('m') }
-      }]
-    });
-    n.set("m",{
-      render(){return "damn"},
-      inputs: [{ label: "go n", exec(c,e) {e.goto("n")  }}]})
-    return n
-  })()
-})
+    }
+  }
+},))
+
 let stageHTML = ref("")
 let command = ref("")
 let curEmuInst;
-onBeforeMount(()=>{
+onBeforeMount(() => {
   curEmuInst = new Emulator(curEmuDef.value);
 })
 </script>
 <template>
   <div>
     <p>
-    <h2>{{ curEmuInst.title?.(curEmuInst.context,curEmuInst) }}</h2>
+    <h2>{{ curEmuInst.title?.(curEmuInst.context, curEmuInst) ?? curEmuInst.title }}</h2>
     </p>
     <pre v-html="stageHTML"></pre>
   </div>
-  <div style="display: flex;place-items: center;max-width:60%;margin:0 auto">
-    <button v-for=" i in curEmuInst?.currentScene?.inputs" @click="i.exec(curEmuInst.context,curEmuInst)">{{ i.label }}</button>
+  <div>
+    <details v-for="w in curEmuInst.watch">{{ w }}</details>
   </div>
-  <div><input v-model="command" @keydown.enter="curEmuInst.command(command)" /></div>
+  <div class="inputlist">
+    <button v-for=" i in curEmuInst?.currentScene?.inputs" @click="i.exec(curEmuInst.context, curEmuInst)">{{ i.label
+    }}</button>
+  </div>
+  <div>
+    <input v-model="command" @keydown.enter="curEmuInst.command(command)" />
+  </div>
   <div>{{ curEmuInst.env.logArea }}</div>
 </template>
 <style scoped>
@@ -54,7 +47,10 @@ div pre {
   min-height: 10rem;
   border: shadow 1%;
   text-wrap: wrap;
+
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
 }
+
 button {
   font-family: inherit;
   border: none;
@@ -71,4 +67,10 @@ button {
 button:active {
   box-shadow: inset -1px -1px #fff, inset 1px 1px #292929, inset -2px -2px #ffffff, inset 2px 2px rgb(158, 158, 158);
 }
-</style>
+
+inputlist {
+  display: flex;
+  place-items: center;
+  max-width: 60%;
+  margin: 0 auto
+}</style>

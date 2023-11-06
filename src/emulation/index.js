@@ -36,6 +36,7 @@ export class Emulator{
      * 比如基本的writeLine
      * 或者print
      */
+    watch=[1];//HUD
     env;
 }
 class Scene{
