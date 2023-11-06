@@ -29,7 +29,7 @@ export class Emulator{
     history=[];
     save(){};
     load(){};
-    command(cstr){};
+    command(cstr){eval(cstr)};
     /**
      * 这个是外界提供的接口
      * 需要提供一些ui方面的内容
