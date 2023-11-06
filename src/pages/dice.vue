@@ -26,7 +26,7 @@ function newdice() {
 <template>
     <ul>
         <li v-for="ds in diceGroup">
-            <diceSingleTag :single="ds">{{ ds.count }}d{{ ds.max }}</diceSingleTag>
+            <diceSingleTag :single="ds"/>
         </li>
         <li>
             <input type="number" v-model="settingMax" min="0" /><button @click="newdice()"></button>

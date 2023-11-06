@@ -18,12 +18,18 @@ globalThis.fold=fold;
   <div style="top:80px;left:30px">
     <router-view></router-view>
   </div>
+
   <div class="mask" @click="fold"
     :style="{ backgroundColor: folding ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.8)', zIndex: folding ? -1 : 1 }">
-    <aside class="sidebar">
+    <aside class="sidebar" @click.stop>
       <p>阿弥诺斯</p>
+      <section>something goes here
+      比如 save->打开save窗口，load->打开load窗口 
+      <button @click="store?.side?.[1]">{{ store?.side }}</button> 
+      </section>
     <router-link :to="{ name:'Emulator'}" >emulator</router-link><br/>
     <router-link :to="{ name:'Dice'}" >dice</router-link><br/>
+    
   </aside>
   </div>
 </template>
@@ -56,7 +62,7 @@ globalThis.fold=fold;
 .mask .sidebar {
   position: absolute;
   width: 20%;
-  min-width: 300px;
+  min-width: 200px;
   height: 100%;
   left: 0px;
   top: 0px;

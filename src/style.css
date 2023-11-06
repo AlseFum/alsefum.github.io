@@ -41,8 +41,6 @@ body {
   margin: 0;
   display: flex;
   place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
@@ -63,6 +61,7 @@ h1 {
   text-align: center;
   background-color: var(--background);
   color:var(--text);
+  overflow: hidden;
 }
 
 @media (prefers-color-scheme: light) {

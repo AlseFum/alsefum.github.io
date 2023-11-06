@@ -1,7 +1,9 @@
 <script setup>
-import { ref, computed, onBeforeMount } from 'vue'
+import { ref, computed, onBeforeMount,onMounted } from 'vue'
 import { Emulator, Context } from '../emulation'
 import defaultEmuDef from '../emulation/default.js'
+import useState from '../storage'
+let store=useState();
 const props = defineProps({
   emulation: { type: Object }
 })
@@ -19,6 +21,10 @@ let command = ref("")
 let curEmuInst;
 onBeforeMount(() => {
   curEmuInst = new Emulator(curEmuDef.value);
+})
+onMounted(()=>{
+  useState().side=["try",()=>{console.log(stageHTML.value)}]
+  console.log(store.side)
 })
 </script>
 <template>
