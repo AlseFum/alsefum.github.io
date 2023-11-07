@@ -2,11 +2,14 @@
 import {ref}from 'vue'
 let props = defineProps(["active"])
 let isActive=ref(props.active) ;
-defineExpose({isActive})
+function trigger(){
+    isActive.value=!isActive.value;
+}
+defineExpose({trigger})
 </script>
 <template>
     <div v-if="isActive" class="shadow" @click="() => { isActive = false; console.log(isActive) }">
-        <div v-if="isActive" class="modal">
+        <div v-if="isActive" class="modal" @click.stop>
             <slot></slot>
         </div>
     </div>

@@ -1,42 +1,45 @@
 <script setup>
-import { ref, computed, onBeforeMount,onMounted } from 'vue'
+import { ref, computed, onBeforeMount,onMounted ,onUnmounted} from 'vue'
 import { Emulator, Context } from '../emulation'
 import defaultEmuDef from '../emulation/default.js'
 import useState from '../storage'
 let store=useState();
+import modal from '../components/modal.vue'
 const props = defineProps({
   emulation: { type: Object }
 })
 
 const curEmuDef = computed(() => props.emulation ?? Object.assign(defaultEmuDef, {
-  env: {
-    print(n) {
-      stageHTML.value = n;
-    }
-  }
+  env: {print(n) {stageHTML.value = n;}}
 },))
 
 let stageHTML = ref("")
 let command = ref("")
 let curEmuInst;
+let modalMenu=ref();
+let modalDebug=ref();
+let debugTextarea=ref();
+function runDebug(str){
+  let {curEmuInst}=this;
+  let {env,context,scenes,currentScene}=curEmuInst;
+  console.log(str);return eval(str)}
 onBeforeMount(() => {
   curEmuInst = new Emulator(curEmuDef.value);
 })
 onMounted(()=>{
-  useState().side=["try",()=>{console.log(stageHTML.value)}]
-  console.log(store.side)
+  store.side=[["try",()=>{modalMenu.value.trigger()}],["debug",()=>{modalDebug.value.trigger()}]]
 })
+onUnmounted(()=>{
+  store.side=[]
+})
+defineExpose([])
 </script>
 <template>
   <div>
-    <p>
-    <h2>{{ curEmuInst.title?.(curEmuInst.context, curEmuInst) ?? curEmuInst.title }}</h2>
-    </p>
+    <p><h2>{{ curEmuInst.title?.(curEmuInst.context, curEmuInst) ?? curEmuInst.title ??"TITLE"}}</h2></p>
     <pre v-html="stageHTML"></pre>
   </div>
-  <div>
-    <details v-for="w in curEmuInst.watch">{{ w }}</details>
-  </div>
+
   <div class="inputlist">
     <button v-for=" i in curEmuInst?.currentScene?.inputs" @click="i.exec(curEmuInst.context, curEmuInst)">{{ i.label
     }}</button>
@@ -45,6 +48,14 @@ onMounted(()=>{
     <input v-model="command" @keydown.enter="curEmuInst.command(command)" />
   </div>
   <div>{{ curEmuInst.env.logArea }}</div>
+  <modal active="true" ref="modalMenu">nihao</modal>
+  <modal  ref="modalDebug" >
+    
+    <textarea id="scripts" cols="30" rows="10" ref="debugTextarea"></textarea>
+    <button @click="runDebug(debugTextarea.value)">
+      run
+    </button>
+  </modal>
 </template>
 <style scoped>
 div pre {

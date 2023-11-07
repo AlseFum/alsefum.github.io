@@ -9,12 +9,6 @@ function fold() {
   return folding.value;
 }
 globalThis.fold=fold;
-import modal from './components/modal.vue'
-
-let m=ref(null);
-onMounted(()=>{
-  setTimeout(()=>{console.log(m.value.isActive);m.value.isActive=false},1000)
-})
 </script>
 <template>
   <div class="header">
@@ -24,14 +18,15 @@ onMounted(()=>{
   <div style="top:80px;left:30px">
     <router-view></router-view>
   </div>
-<modal :active="true" ref="m"><div style="width:300px;height:200px;"></div></modal>
   <div class="mask" @click="fold"
     :style="{ backgroundColor: folding ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.8)', zIndex: folding ? -1 : 1 }">
     <aside class="sidebar" @click.stop>
       <p>阿弥诺斯</p>
       <section>something goes here
-      比如 save->打开save窗口，load->打开load窗口 
-      <button @click="store?.side?.[1]">{{ store?.side }}</button> 
+      比如 save->打开save窗口，load->打开load窗口 <br/>
+      <div v-if="(store.side instanceof Array)">
+      <button v-for="op in store.side" @click="op[1]">{{ op[0] }}</button>
+      </div>
       </section>
     <router-link :to="{ name:'Emulator'}" >emulator</router-link><br/>
     <router-link :to="{ name:'Dice'}" >dice</router-link><br/>
