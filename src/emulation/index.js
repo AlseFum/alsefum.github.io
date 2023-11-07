@@ -5,7 +5,12 @@
 //view是视窗，监控变量，独立于场景显示之外
 //需要有使用存档的能力
 export class Emulator {
-    constructor({ env, context, scenes, title, } = {}) {
+    constructor(def) {
+        //应当是对象输入，否则将字符串合理化
+        let definition = typeof def =='string'?buildFromJSONObject(def):def;
+        console.log("ne",definition)
+        let { env, context, scenes, title, } = definition;
+
         this.env = env;
         if (!this.env.print || 0) console.warn("no enough env func");
         else this.env.setTitle?.(this.title);
@@ -52,7 +57,7 @@ export class Emulator {
 class Scene {
     constructor(i) {
         if(typeof i ==='string'){}
-        this.inputs = i.inputs.map(i => new Input(i));
+        if(i.inputs)this.inputs = i.inputs.map(i => new Input(i));
         this.id = i.id;
         if (typeof i.title == 'function') this.title = i.title;
         else this.title = i => this.name;
@@ -104,9 +109,37 @@ export class View {
     }
     title() { return "default" }
 }
+export function buildFromJSONObject(
+    mid
+){
+   
+    function branch(n){
+        if(Object.keys(n).length==2&&n.params&&n.body){
+            return obj2fn(n);
+        }
+        else if(n instanceof Array){
+            let ret=[];
+            for(let i of n){
+                ret.push(branch(i));
+            }
+            return ret;
+        }
+        
+        else if(typeof n=='object'){
+            let ret={};
+            for(let i in n){
+                ret[i]=branch(n[i]);
+            }
+            return ret
+        }
+        else return n;
+    };
+    return branch(mid);
+}
 function obj2fn(obj){
     if(!obj.params||!obj.body)return false;
     else{
         return new Function(...obj.params, obj.body);
     }
 }
+// /console.log(buildFromJSONObject({n:23,shit:{params:['x','y'],body:"return x+y"}}))

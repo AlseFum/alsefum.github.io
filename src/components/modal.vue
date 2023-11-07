@@ -8,7 +8,7 @@ function trigger(){
 defineExpose({trigger})
 </script>
 <template>
-    <div v-if="isActive" class="shadow" @click="() => { isActive = false; console.log(isActive) }">
+    <div v-if="isActive" class="shadow" @click="() => { isActive = false; }">
         <div v-if="isActive" class="modal" @click.stop>
             <slot></slot>
         </div>

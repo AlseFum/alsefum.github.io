@@ -43,7 +43,9 @@ function newdice() {
     height: 300px;
     margin: 0 auto;
     background-color: var(--primary);
-    
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
 }

@@ -1,15 +1,18 @@
 <script setup>
 import { ref, computed, onBeforeMount,onMounted ,onUnmounted} from 'vue'
+import modal from '../components/modal.vue'
 import { Emulator, Context } from '../emulation'
 import defaultEmuDef from '../emulation/default.js'
 import useState from '../storage'
 let store=useState();
-import modal from '../components/modal.vue'
+
 const props = defineProps({
   emulation: { type: Object }
 })
 
-const curEmuDef = computed(() => props.emulation ?? Object.assign(defaultEmuDef, {
+import punk from '../emulation/punk.toml'
+import { buildFromJSONObject } from '../emulation'
+const curEmuDef = computed(() => props.emulation ?? Object.assign(buildFromJSONObject(punk)??defaultEmuDef, {
   env: {print(n) {stageHTML.value = n;}}
 },))
 
@@ -19,10 +22,16 @@ let curEmuInst;
 let modalMenu=ref();
 let modalDebug=ref();
 let debugTextarea=ref();
+let menuEmuManual=ref();
 function runDebug(str){
   let {curEmuInst}=this;
   let {env,context,scenes,currentScene}=curEmuInst;
   console.log(str);return eval(str)}
+function loadEmuRaw(n){
+  console.log("start",n)
+  curEmuInst.value=new Emulator(buildFromJSONObject(typeof n==='string'?JSON.parse(n):n));
+  console.log("loadraw",curEmuInst.value)
+}
 onBeforeMount(() => {
   curEmuInst = new Emulator(curEmuDef.value);
 })
@@ -48,9 +57,13 @@ defineExpose([])
     <input v-model="command" @keydown.enter="curEmuInst.command(command)" />
   </div>
   <div>{{ curEmuInst.env.logArea }}</div>
-  <modal active="true" ref="modalMenu">nihao</modal>
-  <modal  ref="modalDebug" >
+  <modal active="false" ref="modalMenu">
     
+    这里应该是整emulation的
+    <button @click="loadEmuRaw(menuEmuManual.value)">shishi</button>
+    <textarea ref="menuEmuManual"></textarea>
+  </modal>
+  <modal  ref="modalDebug" >
     <textarea id="scripts" cols="30" rows="10" ref="debugTextarea"></textarea>
     <button @click="runDebug(debugTextarea.value)">
       run

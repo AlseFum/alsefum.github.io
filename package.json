@@ -7,10 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "pub":"git add . &&  git commit -m \"update\" && git push origin"
+    "pub": "git add . &&  git commit -m \"update\" && git push origin"
   },
   "dependencies": {
     "pinia": "^2.1.7",
+    "vite-plugin-toml": "^0.6.0",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5"
   },
