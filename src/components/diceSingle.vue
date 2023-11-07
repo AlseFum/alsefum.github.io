@@ -13,13 +13,18 @@ function sub() {
 }
 </script>
 <template>
-    <div class="single" v-if="count > 0"><button @click="plus">+</button><button @click="sub">-</button>
+    <div class="single" v-if="count>0">
+        <button @click="plus">+</button><button @click="sub">-</button>
         {{ count }}d{{ max }} 
     </div>
 </template>
 <style scoped>
 .single {
     display: inline-block;
-    background-color: var(--accent);
+    background-color: var(--primary);
+    height:18pt;
+    padding:auto 5px;
+    margin:5px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 </style>

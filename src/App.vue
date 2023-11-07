@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref,onMounted } from 'vue'
 import useStore from './storage'
 let store = useStore();
 
@@ -9,6 +9,12 @@ function fold() {
   return folding.value;
 }
 globalThis.fold=fold;
+import modal from './components/modal.vue'
+
+let m=ref(null);
+onMounted(()=>{
+  setTimeout(()=>{console.log(m.value.isActive);m.value.isActive=false},1000)
+})
 </script>
 <template>
   <div class="header">
@@ -18,7 +24,7 @@ globalThis.fold=fold;
   <div style="top:80px;left:30px">
     <router-view></router-view>
   </div>
-
+<modal :active="true" ref="m"><div style="width:300px;height:200px;"></div></modal>
   <div class="mask" @click="fold"
     :style="{ backgroundColor: folding ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.8)', zIndex: folding ? -1 : 1 }">
     <aside class="sidebar" @click.stop>
@@ -29,7 +35,6 @@ globalThis.fold=fold;
       </section>
     <router-link :to="{ name:'Emulator'}" >emulator</router-link><br/>
     <router-link :to="{ name:'Dice'}" >dice</router-link><br/>
-    
   </aside>
   </div>
 </template>
