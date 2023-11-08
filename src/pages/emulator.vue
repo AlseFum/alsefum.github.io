@@ -2,7 +2,8 @@
 import { ref, watch, onBeforeMount,onMounted ,onUnmounted} from 'vue'
 import modal from '../components/modal.vue'
 import { Emulator, Context } from '../emulation'
-
+import { useRoute } from 'vue-router'
+let route=useRoute();
 import useState from '../storage'
 let store=useState();
 
@@ -44,8 +45,14 @@ function loadEmuRaw(n){
 
 onBeforeMount(() => {
   //curEmuInst = new Emulator(curEmuDef.value,env);
+  
 })
 onMounted(()=>{
+  if(route.query.id){
+    console.log("route",route.query)
+    loadEmuRaw(presets.filter(i=>i.id==route.query.id)[0])
+  }
+  modalMenu.value.trigger();
   store.side=[
     ["try",()=>{modalMenu.value.trigger()}],
     ["debug",()=>{modalDebug.value.trigger()}],

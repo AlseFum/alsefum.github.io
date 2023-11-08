@@ -12,7 +12,7 @@ body="context.light=10;context.sanity=10;context.distance=10;emu.goto('level')"
 id="level"
 [scenes.render]
 params=["context"]
-body="return 'light:'+context.light+' sanity:'+context.sanity"
+body="return 'light:'+context.light+'<br/>sanity:'+context.sanity"
 [[scenes.inputs]]
 label="deep"
 [scenes.inputs.exec]

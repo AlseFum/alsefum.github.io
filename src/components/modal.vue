@@ -1,10 +1,11 @@
 <script setup>
-import {ref}from 'vue'
+import {ref,onMounted}from 'vue'
 let props = defineProps(["active"])
 let isActive=ref(props.active) ;
 function trigger(){
     isActive.value=!isActive.value;
 }
+onMounted(()=>console.log(isActive.value))
 defineExpose({trigger})
 </script>
 <template>
