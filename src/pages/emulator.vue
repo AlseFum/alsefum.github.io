@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onBeforeMount,onMounted ,onUnmounted} from 'vue'
+import { ref, watch, onBeforeMount,onMounted ,onUnmounted} from 'vue'
 import modal from '../components/modal.vue'
 import { Emulator, Context } from '../emulation'
 
@@ -25,9 +25,13 @@ let command = ref("")
 let modalMenu=ref();
 let modalDebug=ref();
 let debugTextarea=ref();
-let menuEmuManual=ref();
+
 let sel=ref({});
 let byManual=ref(false);
+let menuEmuManual=ref(localStorage.getItem("storedEmu"));
+watch(menuEmuManual, (newValue) => {
+      localStorage.setItem('storedEmu', newValue);
+    });
 function runDebug(str){
   let {curEmuInst}=this;
   let {env,context,scenes,currentScene}=curEmuInst;
@@ -81,8 +85,10 @@ defineExpose([])
       <option v-for="p in presets" :value="p.id">{{p.id}}</option>
     </select>
     </section>
-    <section v-else><button @click="loadEmuRaw(menuEmuManual.value)">shishi</button>
-    <textarea ref="menuEmuManual"></textarea></section>
+    <section v-else><button @click="loadEmuRaw(menuEmuManual)">shishi</button>
+    <textarea v-model.value="menuEmuManual"></textarea>
+      <button @click="menuEmuManual=''">清除</button>
+  </section>
 
 
   </modal>
