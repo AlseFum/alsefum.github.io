@@ -1,3 +1,3 @@
 import punk from './punk.toml'
-import dean from './dean.toml'
-export default [punk,dean]
+import mist from './mist.toml'
+export default [punk,mist]

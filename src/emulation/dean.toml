@@ -1,7 +1,0 @@
-id="dean"
-[[scenes]]
-id="dean"
-#demo用，表示一个
-render="dean---"
-[[scenes.inputs]]
-label="go out"

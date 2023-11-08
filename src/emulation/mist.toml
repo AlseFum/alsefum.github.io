@@ -1,0 +1,41 @@
+id="mist"
+[[scenes]]
+id="start"
+render="<div style='text-align:center'>kaishi</div>"
+[[scenes.inputs]]
+label="shi"
+[scenes.inputs.exec]
+params=["context","emu"]
+body="context.light=10;context.sanity=10;context.distance=10;emu.goto('level')"
+
+[[scenes]]
+id="level"
+[scenes.render]
+params=["context"]
+body="return 'light:'+context.light+' sanity:'+context.sanity"
+[[scenes.inputs]]
+label="deep"
+[scenes.inputs.exec]
+params=["context","emu"]
+body="context.light-=1;context.sanity-=1;context.distance-=2;if(context.distance<=0)emu.goto('success')"
+
+[[scenes.inputs]]
+label="wait"
+[scenes.inputs.exec]
+params=["context","emu"]
+body="context.light-=1;context.sanity+=2;"
+
+[[scenes.inputs]]
+label="ignite"
+[scenes.inputs.exec]
+params=["context","emu"]
+body="context.light+=1;context.sanity-=1;"
+
+[[scenes]]
+id="success"
+render="<div style='text-align:center'>success</div>"
+[[scenes.inputs]]
+label="again"
+[scenes.inputs.exec]
+params=["context","emu"]
+body="emu.goto('start')"
