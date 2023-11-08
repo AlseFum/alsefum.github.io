@@ -1,7 +1,21 @@
-
-# This is a TOML document
-
 id="punk"
 [[scenes]]
 id="shi"
-render="afeasef"
+render="Nothing much"
+[[scenes.inputs]]
+label="时代"
+[scenes.inputs.exec]
+params=["context","emu"]
+body="1&&emu.goto('pea')"
+
+[[scenes]]
+id="pea"
+[scenes.render]
+params=["context"]
+body="return 'yep:?'+context?.sta"
+[[scenes.inputs]]
+label="shishi"
+
+[scenes.inputs.exec]
+params=["context","emu"]
+body="if(typeof context.sta=='number'){context.sta+=1;}else {context.sta=1;};"

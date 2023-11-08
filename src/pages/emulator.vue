@@ -2,7 +2,7 @@
 import { ref, computed, onBeforeMount,onMounted ,onUnmounted} from 'vue'
 import modal from '../components/modal.vue'
 import { Emulator, Context } from '../emulation'
-import defaultEmuDef from '../emulation/default.js'
+
 import useState from '../storage'
 let store=useState();
 
@@ -10,33 +10,43 @@ const props = defineProps({
   emulation: { type: Object }
 })
 
-import punk from '../emulation/punk.toml'
-import { buildFromJSONObject } from '../emulation'
-const curEmuDef = computed(() => props.emulation ?? Object.assign(buildFromJSONObject(punk)??defaultEmuDef, {
-  env: {print(n) {stageHTML.value = n;}}
-},))
+import presets from '../emulation/series.js'
+
+let curEmuInst=ref(null);
+let env={print(n) {stageHTML.value = n;},rerender}
+function rerender(){
+  env.print(curEmuInst.value.currentScene.render(curEmuInst.value.context,curEmuInst.value));
+}
+
 
 let stageHTML = ref("")
 let command = ref("")
-let curEmuInst;
+
 let modalMenu=ref();
 let modalDebug=ref();
 let debugTextarea=ref();
 let menuEmuManual=ref();
+let sel=ref({});
+let byManual=ref(false);
 function runDebug(str){
   let {curEmuInst}=this;
   let {env,context,scenes,currentScene}=curEmuInst;
-  console.log(str);return eval(str)}
-function loadEmuRaw(n){
-  console.log("start",n)
-  curEmuInst.value=new Emulator(buildFromJSONObject(typeof n==='string'?JSON.parse(n):n));
-  console.log("loadraw",curEmuInst.value)
+  console.log(str);
+  return eval(str)
 }
+function loadEmuRaw(n){
+  curEmuInst.value=new Emulator(n,env);
+}
+
 onBeforeMount(() => {
-  curEmuInst = new Emulator(curEmuDef.value);
+  //curEmuInst = new Emulator(curEmuDef.value,env);
 })
 onMounted(()=>{
-  store.side=[["try",()=>{modalMenu.value.trigger()}],["debug",()=>{modalDebug.value.trigger()}]]
+  store.side=[
+    ["try",()=>{modalMenu.value.trigger()}],
+    ["debug",()=>{modalDebug.value.trigger()}],
+    ['clear',()=>{curEmuInst.value=null;}]
+  ]
 })
 onUnmounted(()=>{
   store.side=[]
@@ -44,31 +54,43 @@ onUnmounted(()=>{
 defineExpose([])
 </script>
 <template>
+  <div v-if="!curEmuInst">还没导入呢</div>
+  <div v-else>
   <div>
-    <p><h2>{{ curEmuInst.title?.(curEmuInst.context, curEmuInst) ?? curEmuInst.title ??"TITLE"}}</h2></p>
+    <!-- <p><h2>{{ curEmuInst.title?.(curEmuInst.context, curEmuInst) ?? curEmuInst.title ??"TITLE"}}</h2></p> -->
     <pre v-html="stageHTML"></pre>
   </div>
 
   <div class="inputlist">
-    <button v-for=" i in curEmuInst?.currentScene?.inputs" @click="i.exec(curEmuInst.context, curEmuInst)">{{ i.label
+    <button v-for=" i in curEmuInst?.currentScene?.inputs" @click="()=>{i.exec(curEmuInst.context, curEmuInst);env.rerender();}">{{ i.label
     }}</button>
   </div>
   <div>
     <input v-model="command" @keydown.enter="curEmuInst.command(command)" />
   </div>
   <div>{{ curEmuInst.env.logArea }}</div>
+</div>
   <modal active="false" ref="modalMenu">
-    
+
+
     这里应该是整emulation的
-    <button @click="loadEmuRaw(menuEmuManual.value)">shishi</button>
-    <textarea ref="menuEmuManual"></textarea>
+    <button @click="byManual=!byManual">{{ byManual?"手动输入":"预设" }}</button>
+    <section v-if="!byManual">
+    <button @click="loadEmuRaw(presets.filter(i=>i.id==sel.value)[0])">shishi</button>
+    <select ref="sel">
+      <option v-for="p in presets" :value="p.id">{{p.id}}</option>
+    </select>
+    </section>
+    <section v-else><button @click="loadEmuRaw(menuEmuManual.value)">shishi</button>
+    <textarea ref="menuEmuManual"></textarea></section>
+
+
   </modal>
   <modal  ref="modalDebug" >
     <textarea id="scripts" cols="30" rows="10" ref="debugTextarea"></textarea>
-    <button @click="runDebug(debugTextarea.value)">
-      run
-    </button>
+    <button @click="runDebug(debugTextarea.value)">run</button>
   </modal>
+
 </template>
 <style scoped>
 div pre {
