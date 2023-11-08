@@ -1,16 +1,17 @@
 <script setup>
 import useStore from '../storage'
+import { ref } from 'vue'
 let store=useStore();
 let diceGroup = ref([
     { count: 2, max: 6 }
 ])
 store.diceGroup=diceGroup;
-import { ref } from 'vue'
+
 
 
 let output = ref(0);
 let settingMax = ref(4);
-let refresher=ref(0)
+
 function roll() {
     let n = 0;
     diceGroup.value.forEach(d => {
@@ -25,26 +26,26 @@ function roll() {
 let results = ref([])
 
 function newdice() {
-    console.log(settingMax.value, diceGroup.value);
     if (settingMax.value > 0) {
         for (let ii of diceGroup.value) {
             if (ii.max == settingMax.value) {
                 
                 ii.count += 1;
-                console.log("old plus",ii)
+                
                 return;
             }
         }
         diceGroup.value.push({ count: 1, max: settingMax.value })
     }
-    refresher.value+=1;
-    diceGroup.value.sort((a, b) => a.max - b.max);
 }
 </script>
 <template>
     <section>
         <div class="dices">
-            <!-- <diceSingleTag v-for="ds in diceGroup" :single="ds" :refresher="refresher" /> -->
+           <div v-for="d in diceGroup">
+            <button @click="d.count+=1;">+</button>
+            <button @click="if(d.count>0)d.count-=1;else diceGroup.splice(diceGroup.indexOf(d),1)">-</button>
+            {{ d.count }}d {{ d.max }}</div>
         </div>
         <input type="number" v-model="settingMax" min="0" /><button @click="newdice()">NEW</button>
 
