@@ -48,11 +48,11 @@ onBeforeMount(() => {
   
 })
 onMounted(()=>{
-  if(route.query.id){
-    console.log("route",route.query)
-    loadEmuRaw(presets.filter(i=>i.id==route.query.id)[0])
+  if(route.query.preset){
+    loadEmuRaw(presets.filter(i=>i.id==route.query.preset)[0]);
+    modalMenu.value.trigger();
   }
-  modalMenu.value.trigger();
+  
   store.side=[
     ["try",()=>{modalMenu.value.trigger()}],
     ["debug",()=>{modalDebug.value.trigger()}],
