@@ -7,9 +7,7 @@ let route = useRoute();
 import useState from '../storage'
 let store = useState();
 
-const props = defineProps({
-  emulation: { type: Object }
-})
+const props = defineProps({emulation: { type: Object }})
 
 import presets from '../emulation/series.js'
 
@@ -22,7 +20,6 @@ function rerender() {
 
 
 let stageHTML = ref("")
-let command = ref("")
 
 let modalMenu = ref();
 let modalDebug = ref();
@@ -42,16 +39,8 @@ function runDebug(str) {
   console.log(str);
   return eval(str)
 }
-function loadEmuRaw(n) {
-  curEmuInst.value = new Emulator(n, env);
-  console.log(curEmuInst.value.scenes)
+function loadEmuRaw(n) {  curEmuInst.value = new Emulator(n, env);}
 
-}
-
-onBeforeMount(() => {
-  //curEmuInst = new Emulator(curEmuDef.value,env);
-
-})
 onMounted(() => {
   if (route.query.preset) {
     loadEmuRaw(presets.filter(i => i.id == route.query.preset)[0]);
@@ -61,37 +50,39 @@ onMounted(() => {
   store.side = [
     ["try", () => { modalMenu.value.trigger() }],
     ["debug", () => { modalDebug.value.trigger() }],
-    ['clear', () => { curEmuInst.value = null; }]
+    ['clear', () => { curEmuInst.value = null; }],
+
   ]
 
 })
 onUnmounted(() => {
   store.side = []
 })
-defineExpose([])
+
 </script>
 <template>
   <div v-if="!curEmuInst">还没导入呢</div>
   <div v-else :style="showBorder ? 'border:1px white solid' : ''">
-    <div :style="showBorder ? 'border:1px white solid' : ''">
+    <section :style="showBorder ? 'border:1px white solid' : ''">
       <!-- <p><h2>{{ curEmuInst.title?.(curEmuInst.context, curEmuInst) ?? curEmuInst.title ??"TITLE"}}</h2></p> -->
       <pre v-html="stageHTML"></pre>
-    </div>
+    </section>
 
-    <div class="inputlist" :style="showBorder ? 'border:1px white solid' : ''">
+    <section class="inputlist" :style="showBorder ? 'border:1px white solid' : ''">
       <button v-for=" i in curEmuInst?.currentScene?.inputs"
         @click="() => { i.exec(curEmuInst.context, curEmuInst); env.rerender(); }">{{ i.label
         }}</button>
-    </div>
-    <div v-if="currentScene">
-      <div v-for="csw in currentScene.watch">de {{csw}} {{ curEmuInst.context[csw?.prop??csw] }}</div>
+    </section>
+
+    <section v-if="currentScene">
+      <div v-for="csw in currentScene.watch">{{csw}}: {{ curEmuInst.context[csw?.prop??csw] }}</div>
       <!-- <input v-model="command" @keydown.enter="curEmuInst.command(command)" /> -->
-    </div>
+    </section>
 
   </div>
 
 
-  <modal active="false" ref="modalMenu" style="display:flex">
+  <modal  ref="modalMenu"  style="display:flex">
     这里应该是整emulation的<br />
     <button @click="byManual = !byManual">{{ byManual ? "手动输入" : "预设" }}</button>
     <section v-if="!byManual">
@@ -104,8 +95,6 @@ defineExpose([])
       <textarea v-model.value="menuEmuManual"></textarea>
       <button @click="menuEmuManual = ''">清除</button>
     </section>
-
-
   </modal>
   <modal ref="modalDebug">
     <button @click="showBorder = !showBorder">trigger border</button>
@@ -114,7 +103,7 @@ defineExpose([])
   </modal>
 </template>
 <style scoped>
-div pre {
+pre {
   max-width: 100rem;
   min-height: 10rem;
   border: shadow 1%;

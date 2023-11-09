@@ -1,7 +1,8 @@
 <script setup>
-import {ref,onMounted}from 'vue'
+import {ref}from 'vue'
 let props = defineProps(["active"])
-let isActive=ref(props.active) ;
+
+let isActive=ref(props.active??false) ;
 function trigger(){
     isActive.value=!isActive.value;
 }
@@ -9,7 +10,7 @@ defineExpose({trigger})
 </script>
 <template>
     <div v-if="isActive" class="shadow" @click="() => { isActive = false; }">
-        <div v-if="isActive" class="modal" @click.stop>
+        <div  class="modal" @click.stop>
             <slot></slot>
         </div>
     </div>
