@@ -5,7 +5,6 @@ let isActive=ref(props.active) ;
 function trigger(){
     isActive.value=!isActive.value;
 }
-onMounted(()=>console.log(isActive.value))
 defineExpose({trigger})
 </script>
 <template>

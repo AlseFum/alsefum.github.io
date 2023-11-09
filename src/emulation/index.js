@@ -10,7 +10,7 @@ export class Emulator {
     constructor(def, env) {
         //应当是对象输入，否则将字符串合理化
         let definition = buildFromJSONObject(def);
-        1 && console.log("[new Emulation]definition:", definition)
+        0 && console.log("[new Emulation]definition:", definition)
         let { context, scenes, title } = definition;
 
         this.env = env;
@@ -25,7 +25,7 @@ export class Emulator {
         });
 
         this.context = new Context(context);
-
+        
         this.goto(this.scenes.get(this.scenes.keys().next().value).id)
     }
     context;
@@ -38,7 +38,6 @@ export class Emulator {
             this.currentScene = this.scenes.get(sceneName);
             
             let toprint=this.currentScene.render(context??this.context, this) ?? ""
-            console.log("goto rendering:",toprint,context??this.context);
             this.env.print(toprint);
 
             // if (typeof this.currentScene.title === "function")
@@ -77,6 +76,7 @@ class Scene {
         else this.render = (context, emulator) => sceneDef.render ?? "Hello Emulator";
 
         //views
+        if(sceneDef.watch)this.watch=sceneDef.watch;else console.log("no watch")
 
     }
     title = i => ""
@@ -93,7 +93,7 @@ class Input {
     hidden = (context, emulator) => false;
     disabled = (context, emulator) => false;
     label = "";
-
+    group=[]
     type = Input.Button;
     static Type = {
         Button: 1,
