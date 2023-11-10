@@ -76,7 +76,7 @@ class Scene {
         else this.render = (context, emulator) => sceneDef.render ?? "Hello Emulator";
 
         //views
-        if(sceneDef.watch)this.watch=sceneDef.watch;else console.log("no watch")
+        if(sceneDef.watch)this.watch=sceneDef.watch;
 
     }
     title = i => ""
@@ -102,16 +102,15 @@ class Input {
 export class Context extends Map {
     constructor() {
         super();
-        // return new Proxy(this, {
-        //     get(obj, prop) {
-        //         if (prop === 'raw') return obj;
-        //         if (prop != 'get' && prop != 'raw') return obj.get(prop)
-        //     },
-        //     set(obj, prop, value) {
-        //         return obj.set(prop, value);
-        //     }
-        // })
-        return this;
+        return new Proxy(this, {
+            get(obj, prop) {
+                if (prop === 'raw') return obj;
+                if (prop != 'get' && prop != 'raw') return obj.get(prop)
+            },
+            set(obj, prop, value) {
+                return obj.set(prop, value);
+            }
+        })
     }
 }
 export class View {
