@@ -9,6 +9,10 @@ function fold() {
   return folding.value;
 }
 globalThis.fold=fold;
+
+fetch('https://jsonplaceholder.typicode.com/todos/1')
+      .then(response => response.json())
+      .then(json => console.log(json))
 </script>
 <template>
   <div class="header">
