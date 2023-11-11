@@ -10,7 +10,7 @@ function fold() {
 }
 globalThis.fold=fold;
 
-fetch('https://jsonplaceholder.typicode.com/todos/1')
+fetch('https://mp984e4047553b495c71.free.beeceptor.com/data')
       .then(response => response.json())
       .then(json => console.log(json))
 </script>

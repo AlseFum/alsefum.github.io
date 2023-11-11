@@ -4,7 +4,7 @@ export default {
     scenes:[
         {
             id:"start",
-            render(){return "no out"},
+            render(){return "雾林level1"},
             inputs:[
                 {
                     label:"开始",
@@ -23,14 +23,14 @@ export default {
         },{
             id:"level1",
             render(context,emu){
-                return `h`
+                return `level1 道中`
             },
             inputs:[{
                 label:"理智->灯光",
-                exec(c){
+                exec(c,e){
                     c.sanity-=1;
                     c.light+=2;
-                   
+                    if(c.sanity<=0||c.light<=0){console.log("emmm");e.goto("level1_lost");return;}
                 }
             },{
                 label:"深入",
@@ -38,8 +38,9 @@ export default {
                     c.sanity--;
                     c.light--;
                     c.depth++;
-                    if(c.depth>10){emu.goto("start");return ;}
-                    if(Math.random()>0.7)emu.goto("level1_witch")
+                    if(c.sanity<=0||c.light<=0){console.log("emmm");emu.goto("level1_lost");return;}
+                    if(c.depth>2){emu.goto("level1_end");return ;}
+                    if(Math.random()>0.7)emu.goto("level1_end")
                 }
             }],
             watch:["light","sanity"]
@@ -52,6 +53,29 @@ export default {
                 {label:"歇一歇",exec(c){c.light+=5,c.sanity+=5;}},
             {label:"继续",exec(c,e){if(c.INT*Math.random()*2>4)e.goto("level1")}}
             ]
+        },{
+            id:"level1_end",
+            render(){
+                return "level1的终点。"
+
+            },
+            inputs:[
+                {
+                    label:"返回",
+                    exec(c,e){
+                        e.goto("start")
+                    }
+                }
+            ]
+        },{
+            id:"level1_lost",
+            render(){return "无论是丧失理智还是迷失方向，你都-逃不掉了。"},
+            inputs:[{
+                label:"重来",
+                exec(c,e){
+                    e.goto("start")
+                }
+            }]
         }
     ],
 }
