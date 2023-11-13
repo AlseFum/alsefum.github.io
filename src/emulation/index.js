@@ -117,34 +117,9 @@ export class View {
     constructor() { }
     title() { return "default" }
 }
+import {cjson} from '../util'
 export function buildFromJSONObject(mid,{funcProcessor}={}) {
-    function branch(n) {
-        if (Object.keys(n).length == 2 && n.params && n.body) {
-            return obj2fn(n,funcProcessor);
-        }
-        else if (n instanceof Array) {
-            let ret = [];
-            for (let i of n) {
-                ret.push(branch(i));
-            }
-            return ret;
-        }
+    return cjson.parse(mid);
+}
 
-        else if (typeof n == 'object') {
-            let ret = {};
-            for (let i in n) {
-                ret[i] = branch(n[i]);
-            }
-            return ret
-        }
-        else return n;
-    };
-    return branch(typeof mid === 'object' ? mid : JSON.parse(mid));
-}
-function obj2fn(obj,funcProcessor=i=>i) {
-    if (!obj.params || !obj.body) return false;
-    else {
-        return new Function(...obj.params, funcProcessor(obj.body));
-    }
-}
 // /console.log(buildFromJSONObject({n:23,shit:{params:['x','y'],body:"return x+y"}}))

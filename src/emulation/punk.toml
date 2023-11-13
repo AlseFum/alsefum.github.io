@@ -15,7 +15,4 @@ params=["context"]
 body="return 'yep:?'+context?.sta"
 [[scenes.inputs]]
 label="shishi"
-
-[scenes.inputs.exec]
-params=["context","emu"]
-body="if(typeof context.sta=='number'){context.sta+=1;}else {context.sta=1;};"
+"exec%fn"="return 'shadoumou'"

@@ -6,24 +6,28 @@ let store = useStore();
 let folding = ref(true);
 function fold() {
   folding.value = !folding.value;
+  console.log(folding.value)
   return folding.value;
 }
 globalThis.fold=fold;
 
-fetch('https://mp984e4047553b495c71.free.beeceptor.com/data')
-      .then(response => response.json())
-      .then(json => console.log(json))
+// fetch('https://mp984e4047553b495c71.free.beeceptor.com/data')
+//       .then(response => response.json())
+//       .then(json => console.log(json))
 </script>
 <template>
-  <div class="header">
+  <header class="header">
     <button @click="fold" style="width:30px;height:30px;margin:10px;"></button>
     {{ store.title }}
-  </div>
-  <div style="top:80px;left:30px">
+  </header>
+
+  <section >
     <router-view></router-view>
-  </div>
+  </section>
+
   <div class="mask" @click="fold"
-    :style="{ backgroundColor: folding ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.8)', zIndex: folding ? -1 : 1 }">
+  :style="{backgroundColor:folding?'rgba(0,0,0,0.5)':'rgba(0,0,0,0)',zIndex:folding?5:-1}"
+  >
     <aside class="sidebar" @click.stop>
       <p>阿弥诺斯</p>
       <section>something goes here
@@ -50,7 +54,7 @@ fetch('https://mp984e4047553b495c71.free.beeceptor.com/data')
 
   display: flex;
   flex-direction: row;
-  justify-content: start;
+  justify-content: stretch;
   align-items: center;
 }
 
@@ -60,7 +64,9 @@ fetch('https://mp984e4047553b495c71.free.beeceptor.com/data')
   height: 100%;
   left: 0px;
   top: 0px;
-  z-index: 1;
+  z-index: 5;
+
+  background-color:rgba(0, 0, 0, 0.8);
 }
 
 .mask .sidebar {

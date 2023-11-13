@@ -33,10 +33,15 @@ watch(menuEmuManual, (newValue) => {
   localStorage.setItem('storedEmu', newValue);
 });
 
-let showBorder = ref(true)
+let showBorder = ref(false)
 function runDebug(str) {
   let { curEmuInst } = this;
-  let { env, context, scenes, currentScene } = curEmuInst;
+  if(curEmuInst&&curEmuInst.value){let { env, context, scenes, currentScene } = curEmuInst};
+  let loadExternal=function(str){
+    fetch(str)
+      .then(response => response.json())
+      .then(json => {console.log("loading",json);loadEmuRaw(json)})
+  }
   console.log(str);
   return eval(str)
 }

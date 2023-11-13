@@ -1,3 +1,3 @@
 import punk from './punk.toml'
 import mist from './mist.js'
-export default [punk,mist]
+export default [mist]
