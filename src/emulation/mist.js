@@ -1,106 +1,120 @@
 
-let sceneMansion = [
-    {
-        id: "sm_start",
-        render(c) {
-            c.mansionkeys=0;
-            return "笼罩在阴影中的洋馆。你要进去吗？"
-        },
-        inputs: [{
-            label: "进去",
-            exec(c, emu) { emu.goto("sm_1") }
-        }, {
-            label: "返回",
-            exec(c, emu) {
-                emu.goto("start")
-            }
-        }]
+let sceneMansion = [{
+    id: "sm_info",
+    render(c) {
+        return "keys:" + c.mansionkeys + "\n"
+
+    }, inputs: [{
+        label:(c)=>"还有"+(c.keys??0)+"把钥匙",
+        exec(c, e) { e.back(c) }
+    }]
+},
+{
+    id: "sm_start",
+    render(c) {
+        c.mansionkeys = 0;
+        return "笼罩在阴影中的洋馆。你要进去吗？"
     },
-    {
-        id: "sm_1",
-        render() { return "大厅。这里是一楼。" },
-        inputs: [{
-            label: "左手楼梯",
-            exec(c, emu) { emu.goto("sm_2") }
-        },{
-            label: "房间3",
-            exec(c, emu) { emu.goto("sm_room3") }
-        },
-        {
-            label: "右手楼梯",
-            exec(c, emu) { emu.goto("sm_2") }
-        },
-        { label: "出去", exec(c, e) {e.goto("sm_out") } }]
-    },
-    {
-        id: "sm_2",
-        render() {
-            return "洋馆上层。"
-        },inputs:[{
-            label: "左手楼梯",
-            exec(c, emu) { emu.goto("sm_1") }
-        },
-        {
-            label: "右手楼梯",
-            exec(c, emu) { emu.goto("sm_1") }
-        },{
-            label: "房间1",
-            exec(c, emu) { emu.goto("sm_room1") }
-        },
-        {
-            label: "房间2",
-            exec(c, emu) { emu.goto("sm_room2") }
-        },]
+    inputs: [{
+        label: "进去",
+        exec(c, emu) { emu.goto("sm_1") }
     }, {
-        id: "sm_out",
-        render() {
-            return "出去的门已经合上了。需要锁。"
-        },
-        inputs:[{
-            label:"...",
-            exec(c,e){e.goto("sm_1")}
-        },
-    {label:"开锁",exec(c,e){
-        if(c.mansionkeys<=0){
-            e.goto("sm_1")
-        }else{
-            e.goto("level1")
+        label: "返回",
+        exec(c, emu) {
+            emu.goto("start")
         }
-    }}]
+    }]
+},
+{
+    id: "sm_1",
+    render() { return "大厅。这里是一楼。" },
+    inputs: [{
+        label: "左手楼梯",
+        exec(c, emu) { emu.goto("sm_2") }
+    }, {
+        label: "房间3",
+        exec(c, emu) { emu.goto("sm_room3") }
     },
     {
-        id:"sm_room1",
-        render() {
-            return "房间一号"
-        },
-        inputs:[{
-            label:"出去",exec(c,e){e.goto("sm_1")}
-        }]
+        label: "右手楼梯",
+        exec(c, emu) { emu.goto("sm_2") }
+    },
+    { label: "出去", exec(c, e) { e.goto("sm_out") } }
+        ,
+    { label: "看看", exec(c, e) { e.push("sm_info") } }]
+},
+{
+    id: "sm_2",
+    render() {
+        return "洋馆上层。"
+    }, inputs: [{
+        label: "左手楼梯",
+        exec(c, emu) { emu.goto("sm_1") }
     },
     {
-        id:"sm_room2",
-        render() {
-            return "房间二号"
-        },
-        inputs:[{
-            label:"出去",exec(c,e){e.goto("sm_1")}
-        }]
+        label: "右手楼梯",
+        exec(c, emu) { emu.goto("sm_1") }
+    }, {
+        label: "房间1",
+        exec(c, emu) { emu.goto("sm_room1") }
     },
     {
-        id:"sm_room3",
-        render() {
-            return "房间三号"
-        },
-        inputs:[{
-            label:"出去",exec(c,e){e.goto("sm_2")}
-        },
-        {
-            label:"看到什么",exec(c,e){c.mansionkeys++;}
-        }]
+        label: "房间2",
+        exec(c, emu) { emu.goto("sm_room2") }
+    },]
+}, {
+    id: "sm_out",
+    render() {
+        return "出去的门已经合上了。需要锁。"
     },
+    inputs: [{
+        label: "...",
+        exec(c, e) { e.goto("sm_1") }
+    },
+    {
+        label: "开锁", exec(c, e) {
+            if (c.mansionkeys <= 0) {
+                e.goto("sm_1")
+            } else {
+                e.goto("level1")
+            }
+        }
+    }]
+},
+{
+    id: "sm_room1",
+    render() {
+        return "房间一号"
+    },
+    inputs: [{
+        label: "出去", exec(c, e) { e.goto("sm_1") }
+    }]
+},
+{
+    id: "sm_room2",
+    render() {
+        return "房间二号"
+    },
+    inputs: [{
+        label: "出去", exec(c, e) { e.goto("sm_1") }
+    }]
+},
+{
+    id: "sm_room3",
+    render() {
+        return "房间三号"
+    },
+    inputs: [{
+        label: "出去", exec(c, e) { e.goto("sm_2") }
+    },
+    {
+        label: "看到什么", exec(c, e) { c.mansionkeys++; }
+    }]
+},
 ]
 export default {
     id: "mist",
+    title:"谜林",
     scenes: [
         {
             id: "start",

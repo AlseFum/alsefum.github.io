@@ -1,44 +1,39 @@
 <script setup>
-import { ref,onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import useStore from './storage'
 let store = useStore();
-
-let folding = ref(true);
+let folding = ref(false);
 function fold() {
   folding.value = !folding.value;
-  console.log(folding.value)
   return folding.value;
 }
-globalThis.fold=fold;
-
-
 </script>
 <template>
-  <div class="mask" @click="fold" v-if="folding"
-  :style="{backgroundColor:folding?'rgba(0,0,0,0.5)':'rgba(0,0,0,0)'}"
-  >
-    <aside class="sidebar" @click.stop>
-      <p>阿弥诺斯</p>
-      <section>something goes here
-      比如 save->打开save窗口，load->打开load窗口 <br/>
-      <div v-if="(store.side instanceof Array)">
-      <button v-for="op in store.side" @click="op[1]">{{ op[0] }}</button>
-      </div>
+  <Transition name="slide-fade">
+    <div class="mask" @click="fold" v-if="folding">
+      <aside class="sidebar" @click.stop>
+        <p>你想看什么</p>
+        <section>
+          <div v-if="(store.side instanceof Array)" @click="fold">
+            <button class="sidebtn" v-for="op in store.side" @click="op[1]">{{ op[0] }}</button>
+          </div><br/><br/>
+        </section>
+
+        <section >
+        <router-link  :to="{ name: 'Emulator' }">emulator</router-link><br />
+        <router-link  :to="{ name: 'Dice' }">dice</router-link><br />
       </section>
-    <router-link :to="{ name:'Emulator'}" >emulator</router-link><br/>
-    <router-link :to="{ name:'Dice'}" >dice</router-link><br/>
-  </aside>
-  </div>
+    </aside>
+    </div>
+  </Transition>
   <header class="header">
     <button @click="fold" style="width:30px;height:30px;margin:10px;">三</button>
     {{ store.title }}
   </header>
 
-  <section >
+  <section>
     <router-view></router-view>
   </section>
-
-  
 </template>
 
 <style scoped>
@@ -65,7 +60,7 @@ globalThis.fold=fold;
   top: 0px;
   z-index: 5;
 
-  background-color:rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 .mask .sidebar {
@@ -77,7 +72,30 @@ globalThis.fold=fold;
   top: 0px;
   z-index: 1px;
   background-color: var(--accent);
-  backdrop-filter:invert(0.2);
-  filter:grayscale(0.9)
+  backdrop-filter: invert(0.2);
+  filter: grayscale(0.9)
+}
+.sidebtn{
+  display: block;
+  height:1.8rem;
+  width:60px;
+  margin:0 auto;
+
+  border-radius:6px;
+
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+}
+.slide-fade-enter-active {
+  transition: all .3s ease;
+}
+
+.slide-fade-leave-active {
+  transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translateX(10px);
+  opacity: 0;
 }
 </style>

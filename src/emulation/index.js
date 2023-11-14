@@ -3,29 +3,38 @@
 //input是场景提供的各种输出，有类型，也有tag
 //context是存变量的，怎么设计都可以
 //view是视窗，监控变量，独立于场景显示之外
+import { cjson } from '../util'
 
 
 //需要有使用存档的能力
 export class Emulator {
     constructor(def, env) {
         //应当是对象输入，否则将字符串合理化
-        let definition = buildFromJSONObject(def);
+        let definition = cjson.parse(def);
         0 && console.log("[new Emulation]definition:", definition)
         let { context, scenes, title } = definition;
 
         this.env = env;
-        if (!this?.env.print || 0) console.warn("no enough env func");
+        if (!this?.env.print) console.warn("no enough env func");
 
         this.title = title;//这个理论上只是在大头？
 
-        this.scenes = new Map();
+
         if (scenes) if (scenes instanceof Map) this.scenes = scenes;
-        else scenes.map(i => new Scene(i)).forEach(element => {
-            this.scenes.set(element.id, element);
-        });
+        else {
+            this.scenes = new Map();
+            if(Array.isArray(scenes))
+            scenes.map(i => new Scene(i)).forEach(element => {
+                this.scenes.set(element.id, element);
+            });else{
+                for(let iter in scenes){
+                    this.scenes.set(iter,new Scene(scenes[iter]))
+                }
+            }
+        }
 
         this.context = new Context(context);
-        
+
         this.goto(this.scenes.get(this.scenes.keys().next().value).id)
     }
     context;
@@ -33,11 +42,11 @@ export class Emulator {
     title = "default";
 
     currentScene;
-    goto(sceneName, context) {
+    goto(sceneName, context=this.context) {
         if (this.scenes.has(sceneName)) {
             this.currentScene = this.scenes.get(sceneName);
-            
-            let toprint=this.currentScene.render(context??this.context, this) ?? ""
+
+            let toprint = this.currentScene.render(context ?? this.context, this) ?? ""
             this.env.print(toprint);
 
             // if (typeof this.currentScene.title === "function")
@@ -47,6 +56,16 @@ export class Emulator {
         } else {
             return false;
         }
+    };
+    push(sceneName,context=this.context){
+        this.history.push(this.currentScene.id);
+        this.goto(sceneName,context);
+    };
+    back(_sceneName,context=this.context){
+        let d=this.history.pop();
+        console.log("backing to ",d)
+        if(d)this.goto(d);
+        else this.goto(_sceneName);
     };
     history = [];
 
@@ -70,13 +89,13 @@ class Scene {
         if (sceneDef.inputs) this.inputs = sceneDef.inputs.map(i => new Input(i));
 
         if (typeof sceneDef.title == 'function') this.title = sceneDef.title;
-        else this.title = it => sceneDef.title ?? "untitled";
+        else this.title = it => sceneDef.title ?? "";
 
         if (typeof sceneDef.render == 'function') this.render = sceneDef.render;
-        else this.render = (context, emulator) => sceneDef.render ?? "Hello Emulator";
+        else this.render = (context, emulator) => (sceneDef.render??sceneDef.template ?? "Hello Emulator");
 
         //views
-        if(sceneDef.watch)this.watch=sceneDef.watch;
+        if (sceneDef.watch) this.watch = sceneDef.watch;
 
     }
     title = i => ""
@@ -93,7 +112,7 @@ class Input {
     hidden = (context, emulator) => false;
     disabled = (context, emulator) => false;
     label = "";
-    group=[]
+    group = []
     type = Input.Button;
     static Type = {
         Button: 1,
@@ -117,9 +136,3 @@ export class View {
     constructor() { }
     title() { return "default" }
 }
-import {cjson} from '../util'
-export function buildFromJSONObject(mid,{funcProcessor}={}) {
-    return cjson.parse(mid);
-}
-
-// /console.log(buildFromJSONObject({n:23,shit:{params:['x','y'],body:"return x+y"}}))

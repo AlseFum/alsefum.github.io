@@ -45,7 +45,9 @@ function runDebug(str) {
   console.log(str);
   return eval(str)
 }
-function loadEmuRaw(n) {  curEmuInst.value = new Emulator(n, env);}
+function loadEmuRaw(n) {  curEmuInst.value = new Emulator(n, env);
+if(curEmuInst.value.title)store.title=curEmuInst.value.title;
+console.log(curEmuInst.value.title,store.title);}
 
 onMounted(() => {
   if (route.query.preset) {
@@ -70,7 +72,7 @@ onUnmounted(() => {
   <div v-if="!curEmuInst">还没导入呢</div>
   <div v-else :style="showBorder ? 'border:1px white solid' : ''">
     <section :style="showBorder ? 'border:1px white solid' : ''">
-      <!-- <p><h2>{{ curEmuInst.title?.(curEmuInst.context, curEmuInst) ?? curEmuInst.title ??"TITLE"}}</h2></p> -->
+      <p><h2>{{currentScene?.title(curEmuInst.context,curEmuInst)}}</h2></p>
       <pre v-html="stageHTML"></pre>
     </section>
 
@@ -79,6 +81,7 @@ onUnmounted(() => {
     </section>
 
     <section v-if="currentScene">
+      <!-- emuwatch -->
       <div v-for="csw in currentScene.watch">{{csw}}: {{ curEmuInst.context[csw?.prop??csw] }}</div>
       <!-- <input v-model="command" @keydown.enter="curEmuInst.command(command)" /> -->
     </section>
@@ -100,8 +103,8 @@ onUnmounted(() => {
       <button @click="menuEmuManual = ''">清除</button>
     </section>
   </modal>
-  <modal ref="modalDebug">
-    <button @click="showBorder = !showBorder">trigger border</button>
+  <modal ref="modalDebug" style="display:flex;flex-direction:column">
+    <button @click="showBorder = !showBorder">trigger border</button><br/><hr/>
     <textarea id="scripts" cols="30" rows="10" ref="debugTextarea"></textarea>
     <button @click="runDebug(debugTextarea.value)">run</button>
   </modal>

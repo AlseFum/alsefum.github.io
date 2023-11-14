@@ -2,8 +2,8 @@
 let props=defineProps(["input","context","emu"])
 </script>
 <template>
-<button @click="() => { props.input.exec(props.context,props.emu);props.emu. env.rerender(); }"
->{{ props.input.label
+<button  :disabled="props.input.disabled(props.context,props.emu)" @click="() => { props.input.exec(props.context,props.emu);props.emu. env.rerender(); }"
+>{{ typeof props.input.label ==="function"?props.input.label(props.context,props.emu):props.input.label
         }}</button>
 
 </template>
