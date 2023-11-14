@@ -10,7 +10,7 @@ app.use(route)
 app.mount('#app')
 
 import { cjson } from './util'
-console.log(cjson.parse({
+0&&console.log(cjson.parse({
     dear: 342, beam:
     {
         "&group": [

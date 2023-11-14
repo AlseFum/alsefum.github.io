@@ -44,7 +44,7 @@ function newdice() {
         <div class="dices">
            <div v-for="d in diceGroup">
             <button @click="d.count+=1;">+</button>
-            <button @click="if(d.count>0)d.count-=1;else diceGroup.splice(diceGroup.indexOf(d),1)">-</button>
+            <button @click="if(d.count>1)d.count-=1;else diceGroup.splice(diceGroup.indexOf(d),1)">-</button>
             {{ d.count }}d {{ d.max }}</div>
         </div>
         <input type="number" v-model="settingMax" min="0" /><button @click="newdice()">NEW</button>
@@ -59,8 +59,9 @@ function newdice() {
 </template>
 <style scoped>
 .screen {
-    width: 300px;
-    height: 300px;
+    --size:300px;
+    width: var(--size);
+    height: var(--size);
     margin: 0 auto;
     background-color: var(--primary);
     display: flex;
@@ -69,7 +70,7 @@ function newdice() {
 
     box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
 
-   
+    clip-path: polygon(10% 0%, 90% 0%, 100% 10%, 100% 90%, 100% 90%, 90% 100%, 10% 100%, 0% 90%,0 10%);
 }
 
 section .dices {
@@ -77,8 +78,10 @@ section .dices {
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+    gap: 3px 3px;
     max-width: 80%;
     margin: 0 auto;
+    
 }
 
 section.ul {
@@ -87,10 +90,4 @@ section.ul {
     margin: 0 auto;
     margin-top: 20px;
     transition: translate(-50%, -50%);
-}
-
-section.dices {
-    display: flex;
-    justify-items: center;
-    gap: 3px 3px;
 }</style>

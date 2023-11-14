@@ -14,17 +14,8 @@ globalThis.fold=fold;
 
 </script>
 <template>
-  <header class="header">
-    <button @click="fold" style="width:30px;height:30px;margin:10px;"></button>
-    {{ store.title }}
-  </header>
-
-  <section >
-    <router-view></router-view>
-  </section>
-
-  <div class="mask" @click="fold"
-  :style="{backgroundColor:folding?'rgba(0,0,0,0.5)':'rgba(0,0,0,0)',zIndex:folding?5:-1}"
+  <div class="mask" @click="fold" v-if="folding"
+  :style="{backgroundColor:folding?'rgba(0,0,0,0.5)':'rgba(0,0,0,0)'}"
   >
     <aside class="sidebar" @click.stop>
       <p>阿弥诺斯</p>
@@ -38,6 +29,16 @@ globalThis.fold=fold;
     <router-link :to="{ name:'Dice'}" >dice</router-link><br/>
   </aside>
   </div>
+  <header class="header">
+    <button @click="fold" style="width:30px;height:30px;margin:10px;">三</button>
+    {{ store.title }}
+  </header>
+
+  <section >
+    <router-view></router-view>
+  </section>
+
+  
 </template>
 
 <style scoped>
