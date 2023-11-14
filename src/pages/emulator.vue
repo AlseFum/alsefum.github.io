@@ -13,11 +13,15 @@ const props = defineProps({emulation: { type: Object }})
 import presets from '../emulation/series.js'
 
 let curEmuInst = ref(null);
-let env = { print(n) { stageHTML.value = n; }, rerender }
 let currentScene=computed(()=>curEmuInst.value.currentScene)
 function rerender() {
   env.print(curEmuInst.value.currentScene.render(curEmuInst.value.context, curEmuInst.value));
 }
+let env = { print(n) { stageHTML.value = n; }, rerender }
+function loadEmuRaw(n) {  curEmuInst.value = new Emulator(n, env);
+if(curEmuInst.value.title)store.title=curEmuInst.value.title;
+console.log(curEmuInst.value.title,store.title);}
+
 
 
 let stageHTML = ref("")
@@ -28,6 +32,7 @@ let debugTextarea = ref();
 
 let sel = ref({});
 let byManual = ref(false);
+
 let menuEmuManual = ref(localStorage.getItem("storedEmu"));
 watch(menuEmuManual, (newValue) => {
   localStorage.setItem('storedEmu', newValue);
@@ -35,7 +40,6 @@ watch(menuEmuManual, (newValue) => {
 
 let showBorder = ref(false)
 function runDebug(str) {
-  let { curEmuInst } = this;
   if(curEmuInst&&curEmuInst.value){let { env, context, scenes, currentScene } = curEmuInst};
   let loadExternal=function(str){
     fetch(str)
@@ -45,24 +49,18 @@ function runDebug(str) {
   console.log(str);
   return eval(str)
 }
-function loadEmuRaw(n) {  curEmuInst.value = new Emulator(n, env);
-if(curEmuInst.value.title)store.title=curEmuInst.value.title;
-console.log(curEmuInst.value.title,store.title);}
+
 
 onMounted(() => {
   if (route.query.preset) {
     loadEmuRaw(presets.filter(i => i.id == route.query.preset)[0]);
-    modalMenu.value.trigger();
   }
-
-  store.side = [
+})
+onMounted(()=>{store.side = [
     ["try", () => { modalMenu.value.trigger() }],
     ["debug", () => { modalDebug.value.trigger() }],
     ['clear', () => { curEmuInst.value = null; }],
-
-  ]
-
-})
+  ]})
 onUnmounted(() => {
   store.side = []
 })
