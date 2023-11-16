@@ -1,13 +1,25 @@
-
+function golocation(loc,title){
+    let str=typeof loc=="object"?loc.name:loc
+    return {label:title??str, exec(c,e){
+        e.goto(str,c);
+    }}
+}
+function place(id,templateOrRender,{title,inputs=[],watch}={}){
+    return {
+        id,
+        [templateOrRender instanceof Function? "render": "template"]:templateOrRender,
+        inputs,watch,
+        $connect(placeOrId,label){
+            this.inputs.push(placeOrId,label)
+        }
+    }
+}
 let sceneMansion = [{
     id: "sm_info",
     render(c) {
         return "keys:" + c.mansionkeys + "\n"
 
-    }, inputs: [{
-        label:(c)=>"还有"+(c.keys??0)+"把钥匙",
-        exec(c, e) { e.back(c) }
-    }]
+    }, inputs: [golocation("sm_1","进入洋馆")]
 },
 {
     id: "sm_start",
@@ -15,13 +27,10 @@ let sceneMansion = [{
         c.mansionkeys = 0;
         return "笼罩在阴影中的洋馆。你要进去吗？"
     },
-    inputs: [{
-        label: "进去",
-        exec(c, emu) { emu.goto("sm_1") }
-    }, {
+    inputs: [golocation("sm_1","进入洋馆"), {
         label: "返回",
         exec(c, emu) {
-            emu.goto("start")
+            emu.back();
         }
     }]
 },
@@ -29,17 +38,17 @@ let sceneMansion = [{
     id: "sm_1",
     render() { return "大厅。这里是一楼。" },
     inputs: [{
-        label: "左手楼梯",
+        label: "》左手楼梯",
         exec(c, emu) { emu.goto("sm_2") }
     }, {
-        label: "房间3",
+        label: "》房间3",
         exec(c, emu) { emu.goto("sm_room3") }
     },
     {
-        label: "右手楼梯",
+        label: "》右手楼梯",
         exec(c, emu) { emu.goto("sm_2") }
     },
-    { label: "出去", exec(c, e) { e.goto("sm_out") } }
+    { label: "》出去", exec(c, e) { e.goto("sm_out") } }
         ,
     { label: "看看", exec(c, e) { e.push("sm_info") } }]
 },
@@ -76,20 +85,12 @@ let sceneMansion = [{
             if (c.mansionkeys <= 0) {
                 e.goto("sm_1")
             } else {
-                e.goto("level1")
+                e.back();
             }
         }
     }]
 },
-{
-    id: "sm_room1",
-    render() {
-        return "房间一号"
-    },
-    inputs: [{
-        label: "出去", exec(c, e) { e.goto("sm_1") }
-    }]
-},
+place("sm_room1","一号房间",{inputs:[golocation("sm_room2","去隔壁")]}),
 {
     id: "sm_room2",
     render() {
@@ -117,11 +118,11 @@ export default {
     title:"谜林",
     scenes: [
         {
-            id: "start",
-            render() { return "雾林level1" },
+            id: "start",title:"雾林",
+            render() { return "<br/>踏入此林，不复归返" },
             inputs: [
                 {
-                    label: "开始",
+                    label: "》进入《",
                     exec(context, emu) {
                         context.CHA = Math.ceil(Math.random() * 6)
                         context.DEX = Math.ceil(Math.random() * 6)
@@ -130,67 +131,62 @@ export default {
                         context.light = 10;
                         context.sanity = 10;
                         context.depth = 0;
-                        console.log(emu.scenes)
-                        emu.goto("sm_start")
+                        emu.goto("main")
                     }
                 }
             ]
         }, {
-            id: "level1",
+            id: "main",
             render(context, emu) {
-                return `level1 道中`
+                let raw= `途中。<br/>`;
+                if(context.light>=10)raw+="烛火通明<br/>"
+                if(context.light>5&&context.light<10)raw+="烛火飘摇<br/>";
+                if(context.light<5)raw+="烛火飘忽<br/>";
+                if(context.sanity>5&&context.sanity<10)raw+="理智在线"
+                return raw;
             },
-            inputs: [{
-                label: "理智->灯光",
-                exec(c, e) {
-                    c.sanity -= 1;
-                    c.light += 2;
-                    if (c.sanity <= 0 || c.light <= 0) { console.log("emmm"); e.goto("level1_lost"); return; }
-                }
-            }, {
+            inputs: [ {
                 label: "深入",
                 exec(c, emu) {
                     c.sanity--;
                     c.light--;
                     c.depth++;
-                    if (c.sanity <= 0 || c.light <= 0) { console.log("emmm"); emu.goto("level1_lost"); return; }
-                    if (c.depth > 2) { emu.goto("level1_end"); return; }
-                    if (Math.random() > 0.7) emu.goto("level1_end")
+                    if (c.sanity <= 0 || c.light <= 0) {  emu.goto("lost"); return; }
+                    if(Math.random()>0.3){
+                        emu.push("sm_start")
+                    }
+                    if(c.depth>=10)emu.goto("passed")
+                    if(Math.random()>0.5)emu.goto("moth")
                 }
+                
             }],
             watch: ["light", "sanity"]
+        },  {
+            id: "lost",
+            title:"失去踪迹",
+            render() { return "<br/>无论是丧失理智还是迷失方向，你都-逃不掉了。" },
+            inputs: [golocation("start","重来")]
         }, {
-            id: "level1_witch",
-            render() {
-                return `未知的小屋`
-            },
-            inputs: [
-                { label: "歇一歇", exec(c) { c.light += 5, c.sanity += 5; } },
-                { label: "继续", exec(c, e) { if (c.INT * Math.random() * 2 > 4) e.goto("level1") } }
-            ]
-        }, {
-            id: "level1_end",
-            render() {
-                return "level1的终点。"
-
-            },
-            inputs: [
+            id: "passed",
+            title:"穿越密林",
+            render() { return "<br/>无论是好运还是...，你出来了。然而你只有一个选择。" },
+            inputs: [golocation("start","重来")]
+        },
+    ].concat(sceneMansion).concat([
+        place("moth","蛾",{
+            inputs:[
                 {
-                    label: "返回",
-                    exec(c, e) {
-                        e.goto("start")
+                    label:"追逐",
+                    exec(c,emu){
+                        c.sanity--;
+                        c.light--;
+                        c.depth+=5*(Math.random()>0.8?1:0)+3*(Math.random()>0/5?1:0)+Math.random()>0.5?1:0;
+                        if(c.sanity<=0||c.light<=0)emu.goto("lost");
+                        if(c.depth>=10)emu.goto("passed");
                     }
-                }
-            ]
-        }, {
-            id: "level1_lost",
-            render() { return "无论是丧失理智还是迷失方向，你都-逃不掉了。" },
-            inputs: [{
-                label: "重来",
-                exec(c, e) {
-                    e.goto("start")
-                }
-            }]
-        }
-    ].concat(sceneMansion)
+                },golocation("main","不追了")
+            ],
+            watch:["light","sanity","depth"]
+        })
+    ])
 }

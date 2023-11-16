@@ -7,6 +7,8 @@ function fold() {
   folding.value = !folding.value;
   return folding.value;
 }
+
+
 </script>
 <template>
   <Transition name="slide-fade">
@@ -16,7 +18,7 @@ function fold() {
         <section>
           <div v-if="(store.side instanceof Array)" @click="fold">
             <button class="sidebtn" v-for="op in store.side" @click="op[1]">{{ op[0] }}</button>
-          </div><br/><br/>
+          </div><br/>
         </section>
 
         <section >
@@ -86,9 +88,8 @@ function fold() {
   box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
 }
 .slide-fade-enter-active {
-  transition: all .3s ease;
+  transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
 }
-
 .slide-fade-leave-active {
   transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
 }
