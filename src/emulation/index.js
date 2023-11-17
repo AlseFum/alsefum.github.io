@@ -132,7 +132,3 @@ export class Context extends Map {
         })
     }
 }
-export class View {
-    constructor() { }
-    title() { return "default" }
-}

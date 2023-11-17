@@ -10,6 +10,7 @@
     "pub": "git add . &&  git commit -m \"update\" && git push origin"
   },
   "dependencies": {
+    "crypto-js": "^4.2.0",
     "pinia": "^2.1.7",
     "vite-plugin-toml": "^0.6.0",
     "vue": "^3.3.4",

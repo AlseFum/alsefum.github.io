@@ -20,7 +20,6 @@ function fold() {
             <button class="sidebtn" v-for="op in store.side" @click="op[1]">{{ op[0] }}</button>
           </div><br/>
         </section>
-
         <section >
         <router-link  :to="{ name: 'Emulator' }">emulator</router-link><br />
         <router-link  :to="{ name: 'Dice' }">dice</router-link><br />
@@ -62,7 +61,8 @@ function fold() {
   top: 0px;
   z-index: 5;
 
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
 }
 
 .mask .sidebar {
@@ -73,9 +73,8 @@ function fold() {
   left: 0px;
   top: 0px;
   z-index: 1px;
-  background-color: var(--accent);
+  background-color: var(--primary);
   backdrop-filter: invert(0.2);
-  filter: grayscale(0.9)
 }
 .sidebtn{
   display: block;
@@ -87,16 +86,17 @@ function fold() {
 
   box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
 }
+
 .slide-fade-enter-active {
-  transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  transition: all .2s cubic-bezier(1.0, 0.5, 0.8, 1.0);
 }
 .slide-fade-leave-active {
-  transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  transition: all .2s cubic-bezier(1.0, 0.5, 0.8, 1.0);
 }
 
-.slide-fade-enter,
+.slide-fade-enter-from,
 .slide-fade-leave-to {
-  transform: translateX(10px);
+  transform: translateX(-10px);
   opacity: 0;
 }
 </style>

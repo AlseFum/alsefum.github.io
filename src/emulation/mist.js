@@ -28,49 +28,28 @@ let sceneMansion = [{
         return "笼罩在阴影中的洋馆。你要进去吗？"
     },
     inputs: [golocation("sm_1","进入洋馆"), {
-        label: "返回",
-        exec(c, emu) {
-            emu.back();
-        }
+        label: "返回",exec(c, emu) {emu.back();}
     }]
 },
 {
-    id: "sm_1",
+    id: "sm_1",title:"一楼",
     render() { return "大厅。这里是一楼。" },
-    inputs: [{
-        label: "》左手楼梯",
-        exec(c, emu) { emu.goto("sm_2") }
-    }, {
+    inputs: [golocation("sm_2","》上二楼"), {
         label: "》房间3",
         exec(c, emu) { emu.goto("sm_room3") }
     },
-    {
-        label: "》右手楼梯",
-        exec(c, emu) { emu.goto("sm_2") }
-    },
+    
     { label: "》出去", exec(c, e) { e.goto("sm_out") } }
         ,
     { label: "看看", exec(c, e) { e.push("sm_info") } }]
 },
 {
-    id: "sm_2",
+    id: "sm_2",title:"二楼",
     render() {
         return "洋馆上层。"
-    }, inputs: [{
-        label: "左手楼梯",
-        exec(c, emu) { emu.goto("sm_1") }
-    },
-    {
-        label: "右手楼梯",
-        exec(c, emu) { emu.goto("sm_1") }
-    }, {
-        label: "房间1",
-        exec(c, emu) { emu.goto("sm_room1") }
-    },
-    {
-        label: "房间2",
-        exec(c, emu) { emu.goto("sm_room2") }
-    },]
+    }, inputs: [golocation("sm_1","》下一楼"),
+     golocation("sm_room1","房间1"),
+     golocation("sm_room2","房间2"),]
 }, {
     id: "sm_out",
     render() {
@@ -103,14 +82,14 @@ place("sm_room1","一号房间",{inputs:[golocation("sm_room2","去隔壁")]}),
 {
     id: "sm_room3",
     render() {
-        return "房间三号"
+        return "房间三号<br/>有一堆钥匙。可能是开门的"
     },
     inputs: [{
-        label: "出去", exec(c, e) { e.goto("sm_2") }
+        label: "出去", exec(c, e) { e.goto("sm_1") }
     },
     {
-        label: "看到什么", exec(c, e) { c.mansionkeys++; }
-    }]
+        label: "拿一把钥匙", exec(c, e) { c.mansionkeys++; }
+    }],watch:["mansionkeys"]
 },
 ]
 export default {
@@ -173,14 +152,14 @@ export default {
             inputs: [golocation("start","重来")]
         },
     ].concat(sceneMansion).concat([
-        place("moth","蛾",{
+        place("moth","一只蛾子吸引着你的目光。",{
             inputs:[
                 {
-                    label:"追逐",
+                    label:"追逐",disabled:()=>false,
                     exec(c,emu){
                         c.sanity--;
                         c.light--;
-                        c.depth+=5*(Math.random()>0.8?1:0)+3*(Math.random()>0/5?1:0)+Math.random()>0.5?1:0;
+                        c.depth+=5*(Math.random()>0.8?1:0)+3*(Math.random()>0/5?1:0)+(Math.random()>0.5?1:0);
                         if(c.sanity<=0||c.light<=0)emu.goto("lost");
                         if(c.depth>=10)emu.goto("passed");
                     }
