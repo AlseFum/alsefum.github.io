@@ -8,3 +8,6 @@ let app = createApp(App);
 app.use(createPinia())
 app.use(route)
 app.mount('#app')
+
+import cjn from '../util'
+console.log(cjn(234))
