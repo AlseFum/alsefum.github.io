@@ -105,12 +105,21 @@ function branch(n, { depth = 0,password="ChenEr" } = {}) {
         }
         else if (n["&random"]) {
             if (Array.isArray(n.items)) {
-                return n.items[Math.floor(Math.random() * n.items.length)];
+                return branch(n.items[Math.floor(Math.random() * n.items.length)]);
             } else if (n.range) {
-                if (Array.isArray(n.range)) return Math.random() * (n.range[1] - n.range[0]) + n.range[0];
-                else return Math.random() * n.range
+                if (Array.isArray(n.range)) return Math.floor(Math.random() * (n.range[1] - n.range[0]) + n.range[0]);
+                else return Math.floor(Math.random() * n.range)
             }
-        }else if(n["&crypted"]){
+        }
+        else if(n["&template"]){
+            let str=""
+            n.sub.forEach(element => {
+                str+=branch(element).toString();
+            });
+            return str;
+        }
+        
+        else if(n["&crypted"]){
             if(decrypt(password,n.validate)==="success")
             return decrypt(password,n["&crypted"].value)
         }
