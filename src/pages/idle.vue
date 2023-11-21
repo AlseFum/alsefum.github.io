@@ -19,22 +19,7 @@ function draw() {
     }
 }
 onMounted(() => {
-    console.log(JSON.stringify({
-        ["&template"]: true,
-        sub: [
-            "在",
-            {
-                ["&random"]: true, items: [
-                    "街上", "自己的房间", "试衣间"
-                ]
-            },
-            "和",
-            {["&random"]: true, items: ["JK","OL","JC","痴女"]},
-            "做了",
-            {["&random"]:true,range:[3,19]},
-            "次"
-        ]
-    }))
+    console.log()
 })
 </script>
 <template>
@@ -46,5 +31,8 @@ onMounted(() => {
 
     {{ content }}
     <button @click="draw">draw</button>
+
+    或许要做个deck
+    或许有更精细的
 </template>
 <style scoped></style>

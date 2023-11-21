@@ -42,7 +42,7 @@ function newdice() {
 <template>
     <section>
         <div class="dices">
-           <div v-for="d in diceGroup">
+           <div v-for="d in diceGroup" >
             <button @click="d.count+=1;">+</button>
             <button @click="if(d.count>1)d.count-=1;else diceGroup.splice(diceGroup.indexOf(d),1)">-</button>
             {{ d.count }}d {{ d.max }}</div>
@@ -81,6 +81,7 @@ section .dices {
     gap: 3px 3px;
     max-width: 80%;
     margin: 0 auto;
+    padding:10px;
     
 }
 

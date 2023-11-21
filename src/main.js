@@ -9,5 +9,5 @@ app.use(createPinia())
 app.use(route)
 app.mount('#app')
 
-import cjn from '../util'
-console.log(cjn(234))
+import { cjn } from './util'
+console.log(cjn({ let1:{"&let":89,as:"ass"},ref2:{"&ref":"89",value:{b:67}}}, { useString: true }))
