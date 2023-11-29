@@ -76,3 +76,7 @@ h1 {
     background-color: #f9f9f9;
   }
 }
+.nah{
+  background-color: red;
+  --primary:rgb(7, 107, 7);
+}

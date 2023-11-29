@@ -5,7 +5,6 @@
 //view是视窗，监控变量，独立于场景显示之外
 import { cjson } from '../util'
 
-
 //需要有使用存档的能力
 export class Emulator {
     constructor(def, env) {

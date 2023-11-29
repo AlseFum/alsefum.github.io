@@ -25,7 +25,6 @@ let main=place("main",mainRender,{title:"恁家"})
 let school=place("school","学校",{title:"学校"})
 school.$connect(main,"回家")
 main.$connect(school,"学校")
-console.log(school,main)
 export default {
     id:"am",
     title:"劣仿AM",

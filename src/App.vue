@@ -4,15 +4,14 @@ import useStore from './storage'
 let store = useStore();
 let folding = ref(false);
 function fold() {
-  folding.value = !folding.value;
-  return folding.value;
+  folding.value = !folding.value;return folding.value;
 }
-
+const custyle=ref("")
 
 </script>
 <template>
-  <Transition name="slide-fade">
-    <div class="mask" @click="fold" v-if="folding">
+  <Transition name="slide-fade"> 
+    <div class="mask" @click="fold" v-if="folding" :class="[custyle]">
       <aside class="sidebar" @click.stop>
         <p>你想看什么</p>
         <section>
@@ -27,12 +26,12 @@ function fold() {
     </aside>
     </div>
   </Transition>
-  <header class="header">
+  <header class="header" :class="[custyle]">
     <button @click="fold" style="width:30px;height:30px;margin:10px;">三</button>
     {{ store.title }}
   </header>
 
-  <section>
+  <section :class="[custyle]">
     <router-view></router-view>
   </section>
 </template>
