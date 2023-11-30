@@ -29,8 +29,9 @@ export default {
     id:"am",
     title:"劣仿AM",
     scenes:[{
-        id:"start",
-        template:"拙劣模仿。<br/>实验用",
+        id:"start",render(){
+            return "拙劣模仿。<br/>实验用<br/>今日的花子从屁股里抽出了"+["跳蛋","扳手","幻龙","肛塞"][Math.floor(Math.random()*4)]
+        },
         inputs:[{label:"开始",id:"start",exec(c,e){start(c,e);e.push("main");}}]
     },main,school]
 }
