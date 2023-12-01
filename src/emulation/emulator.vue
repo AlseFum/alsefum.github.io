@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onBeforeMount, onMounted, onUnmounted, computed, inject } from 'vue'
+import { ref, watch, onMounted, onUnmounted, computed, inject } from 'vue'
 import modal from '../components/modal.vue'
 import switchVue from '../components/switch.vue';
 import emuInput from '../components/emuInput.vue'
@@ -12,7 +12,7 @@ let store = useState();
 
 const props = defineProps({ emulation: { type: Object } })
 
-import presets from '../emulation/series.js'
+import presets from '../emulation/presets/index.js'
 
 let curEmuInst = ref(null);
 let currentScene = computed(() => curEmuInst.value.currentScene)
@@ -23,6 +23,8 @@ let env = { print(n) { stageHTML.value = n; }, rerender }
 function loadEmuRaw(n) {
   curEmuInst.value = new Emulator(n, env);
   if (curEmuInst.value.title) store.title = curEmuInst.value.title;
+  currentScene.value = curEmuInst.value.currentScene;
+  console.log(currentScene.value)
 }
 
 
@@ -35,11 +37,14 @@ let debugTextarea = ref();
 let sel = ref("");
 let contentFrom = ref();
 
-
-let menuEmuManual = ref(localStorage.getItem("storedEmu"));
-watch(menuEmuManual, (newValue) => {
-  localStorage.setItem('storedEmu', newValue);
-});
+function syncLocal(str) {
+  let ret = ref(localStorage.getItem(str));
+  watch(ret, (newValue) => {
+    localStorage.setItem(str, newValue);
+  })
+  return ret;
+}
+let menuEmuManual = syncLocal("storedEmu")
 
 let showBorder = ref(false)
 function runDebug(str) {
@@ -52,47 +57,63 @@ function runDebug(str) {
   console.log(str);
   return eval(str)
 }
-
-inject("attempt", (i, c, e) => typeof i === "string" ? i : i(c, e))
+import table from '../util/table'
+const attempt = (i, c, e) => { if (typeof i === "string") return i; else return i(c, e) }
+inject("attempt", attempt)
 onMounted(() => {
   if (route.query.preset) {
+
     loadEmuRaw(presets.filter(i => i.id == route.query.preset)[0]);
+
   }
+
 })
 side: {
-onMounted(() => {
-  store.side = [
-    ["try", () => { modalMenu.value.trigger() }],
-    ["debug", () => { modalDebug.value.trigger() }],
-    ['clear', () => { curEmuInst.value = null; }],
-  ]
-})
-onUnmounted(() => {
-  store.side = []
-})}
+  onMounted(() => {
+    store.side = [
+      ["try", () => { modalMenu.value.trigger() }],
+      ["debug", () => { modalDebug.value.trigger() }],
+      ['clear', () => { curEmuInst.value = null; }],
+    ]
+  })
+  onUnmounted(() => {
+    store.side = []
+  })
+}
 
 </script>
 <template>
   <div v-if="!curEmuInst">还没导入呢</div>
-  <div v-else :style="showBorder ? 'border:1px white solid' : ''">
-    <section :style="showBorder ? 'border:1px white solid' : ''">
-      <p>
-      <h2>{{ currentScene?.title(curEmuInst.context, curEmuInst) }}</h2>
-      </p>
-      <pre v-html="stageHTML"></pre>
-    </section>
+  <div v-else-if="curEmuInst.currentScene.type === 'scene'" :style="showBorder ? 'border:1px white solid' : ''">
 
-    <section class="inputlist" :style="showBorder ? 'border:1px white solid' : ''">
-      <emuInput v-for=" i in curEmuInst?.currentScene?.inputs" :input="i" :context="curEmuInst.context" :emu="curEmuInst">
-      </emuInput>
-    </section>
+    
+      <section :style="showBorder ? 'border:1px white solid' : ''">
+        <p>
+        <h2>{{ attempt(currentScene?.title, curEmuInst.context, curEmuInst) }}</h2>
+        </p>
+        <pre v-html="stageHTML"></pre>
+      </section>
 
-    <section v-if="currentScene">
-      <emuWatch v-for="csw in currentScene.watch" :pkey="csw?.prop ?? csw" :value="curEmuInst.context[csw?.prop ?? csw]"></emuWatch>
-      <!-- <input v-model="command" @keydown.enter="curEmuInst.command(command)" /> -->
-    </section>
+      <section class="inputlist" :style="showBorder ? 'border:1px white solid' : ''">
+        <emuInput v-for=" i in curEmuInst?.currentScene?.inputs" :input="i" :context="curEmuInst.context"
+          :emu="curEmuInst">
+        </emuInput>
+      </section>
 
+      <section v-if="currentScene">
+        <emuWatch v-for="csw in currentScene.watch" :pkey="csw?.prop ?? csw"
+          :value="curEmuInst.context[csw?.prop ?? csw]">
+        </emuWatch>
+      </section>
+
+    
   </div>
+  <div v-else-if="curEmuInst.currentScene.type === 'plot'">
+  <p v-for="i in 4">plots</p>
+  <p>branch</p>
+  <p>choice</p>
+  </div>
+
 
 
   <modal ref="modalMenu" style="display:flex">
@@ -111,6 +132,7 @@ onUnmounted(() => {
   </modal>
   <modal ref="modalDebug" style="display:flex;flex-direction:column">
     <button @click="showBorder = !showBorder">trigger border</button><br />
+    <button @click="console.log(curEmuInst)"></button>
     <hr />
     <textarea id="scripts" cols="30" rows="10" ref="debugTextarea"></textarea>
     <button @click="runDebug(debugTextarea.value)">run</button>
@@ -134,6 +156,7 @@ inputlist {
   max-width: 60%;
   margin: 0 auto
 }
+
 button {
   font-family: inherit;
   border: none;

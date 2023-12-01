@@ -3,8 +3,10 @@
 //input是场景提供的各种输出，有类型，也有tag
 //context是存变量的，怎么设计都可以
 //view是视窗，监控变量，独立于场景显示之外
+//有好几种scene，对应不同的显示方式，具体显示需要一套协定
 import { cjson } from '../util'
-
+import Table from "../util/table.js"
+export let Context = Table
 //需要有使用存档的能力
 export class Emulator {
     constructor(def, env) {
@@ -17,37 +19,30 @@ export class Emulator {
         if (!this?.env.print) console.warn("no enough env func");
 
         this.title = title;//这个理论上只是在大头？
+        this.context =Context(context);
+        this.scenes=Table(scenes.map(s=>new Scene(s)),"id");
 
-
-        if (scenes) if (scenes instanceof Map) this.scenes = scenes;
-        else {
-            this.scenes = new Map();
-            if(Array.isArray(scenes))
-            scenes.map(i => new Scene(i)).forEach(element => {
-                this.scenes.set(element.id, element);
-            });else{
-                for(let iter in scenes){
-                    this.scenes.set(iter,new Scene(scenes[iter]))
-                }
-            }
+        let start;
+        //实现for of！
+        for(let i of this.scenes){
+            if(i.isStart||i.id==='start'){start=i;break;}
         }
-
-        this.context = new Context(context);
-
-        this.goto(this.scenes.get(this.scenes.keys().next().value).id)
+        if(start)this.goto(start.id);
+        else{
+            this.currentScene=null;
+            //null就是自选
+        }
     }
     context;
-    scenes;//newMap
+    scenes;
     title = "default";
 
     currentScene;
-    goto(sceneName, context=this.context) {
+    goto(sceneName, context = this.context) {
         if (this.scenes.has(sceneName)) {
-            this.currentScene = this.scenes.get(sceneName);
-
+            this.currentScene = this.scenes[sceneName];
             let toprint = this.currentScene.render(context ?? this.context, this) ?? ""
             this.env.print(toprint);
-
             // if (typeof this.currentScene.title === "function")
             //     this.title = this.currentScene?.title?.(context, this);
             // else this.title = this.currentScene.title;
@@ -56,14 +51,14 @@ export class Emulator {
             return false;
         }
     };
-    push(sceneName,context=this.context){
-        this.history.push(this.currentScene.id);
-        this.goto(sceneName,context);
+    push(sceneName, context = this.context) {
+        this.history.push(this.currentScene?.id);
+        this.goto(sceneName, context);
     };
-    back(_sceneName,context=this.context){
-        let d=this.history.pop();
-        console.log("backing to ",d)
-        if(d)this.goto(d);
+    back(_sceneName, context = this.context) {
+        let d = this.history.pop();
+     //   console.log("backing to ", d)
+        if (d) this.goto(d);
         else this.goto(_sceneName);
     };
     history = [];
@@ -84,50 +79,47 @@ export class Emulator {
 class Scene {
     constructor(sceneDef) {
         this.id = sceneDef.id;
+        Object.assign(this,sceneDef);
+        if(!this.type)this.type="scene";
+        switch(this.type){
+case "scene":{break;}
+case "plot":{break;}
+        }
+        
+        // if (sceneDef.inputs) this.inputs = sceneDef.inputs.map(i => new Input(i));
 
-        if (sceneDef.inputs) this.inputs = sceneDef.inputs.map(i => new Input(i));
+        // if (typeof sceneDef.title == 'function') this.title = sceneDef.title;
+        // else this.title = it => sceneDef.title ?? "";
 
-        if (typeof sceneDef.title == 'function') this.title = sceneDef.title;
-        else this.title = it => sceneDef.title ?? "";
+        // if (typeof sceneDef.render == 'function') this.render = sceneDef.render;
+        // else this.render = (context, emulator) => (sceneDef.render ?? sceneDef.template ?? "Hello Emulator");
 
-        if (typeof sceneDef.render == 'function') this.render = sceneDef.render;
-        else this.render = (context, emulator) => (sceneDef.render??sceneDef.template ?? "Hello Emulator");
-
-        //views
-        if (sceneDef.watch) this.watch = sceneDef.watch;
+        // //views
+        // if (sceneDef.watch) this.watch = sceneDef.watch;
 
     }
     title = i => ""
     id;
     render() { }
-    inputs = []
 
 }
 class Input {
-    constructor(i) {
-        Object.assign(this, i);
-    }
+    constructor(i) { Object.assign(this, i); }
     exec(context, emulator) { }
     hidden = (context, emulator) => false;
     disabled = (context, emulator) => false;
     label = "";
     group = []
-    type = Input.Button;
-    static Type = {
-        Button: 1,
-    }
+    static Button=1;
+    static Text=2;
+    static Select=3;
 }
-export class Context extends Map {
-    constructor() {
-        super();
-        return new Proxy(this, {
-            get(obj, prop) {
-                if (prop === 'raw') return obj;
-                if (prop != 'get' && prop != 'raw') return obj.get(prop)
-            },
-            set(obj, prop, value) {
-                return obj.set(prop, value);
-            }
-        })
-    }
+class InputButton extends Input {
+    type=Input.Button
+}
+class InputText extends Input {
+    type=Input.Text
+}
+class InputSelect extends Input {
+    type=Input.Select
 }

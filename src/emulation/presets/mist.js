@@ -94,10 +94,10 @@ place("sm_room1","一号房间",{inputs:[golocation("sm_room2","去隔壁")]}),
 ]
 export default {
     id: "mist",
-    title:"谜林",
+    title:i=>"谜林",
     scenes: [
         {
-            id: "start",title:"雾林",
+            id: "start",title:"雾林",isStart:true,
             render() { return "<br/>踏入此林，不复归返" },
             inputs: [
                 {
