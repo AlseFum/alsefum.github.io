@@ -6,7 +6,7 @@
 //有好几种scene，对应不同的显示方式，具体显示需要一套协定
 import { cjson } from '../util'
 import Table from "../util/table.js"
-export let Context = Table
+
 //需要有使用存档的能力
 export class Emulator {
     constructor(def, env) {
@@ -19,17 +19,17 @@ export class Emulator {
         if (!this?.env.print) console.warn("no enough env func");
 
         this.title = title;//这个理论上只是在大头？
-        this.context =Context(context);
-        this.scenes=Table(scenes.map(s=>new Scene(s)),"id");
+        this.context = Table(context);
+        this.scenes = Table(scenes.map(s => new Scene(s)), "id");
 
         let start;
-        //实现for of！
-        for(let i of this.scenes){
-            if(i.isStart||i.id==='start'){start=i;break;}
+        
+        for (let i of this.scenes) {
+            if (i.isStart || i.id === 'start') { start = i; break; }
         }
-        if(start)this.goto(start.id);
-        else{
-            this.currentScene=null;
+        if (start) this.goto(start.id);
+        else {
+            this.currentScene = null;
             //null就是自选
         }
     }
@@ -39,9 +39,10 @@ export class Emulator {
 
     currentScene;
     goto(sceneName, context = this.context) {
+       
         if (this.scenes.has(sceneName)) {
             this.currentScene = this.scenes[sceneName];
-            let toprint = this.currentScene.render(context ?? this.context, this) ?? ""
+            let toprint = this.currentScene.render(context,this) ?? ""
             this.env.print(toprint);
             // if (typeof this.currentScene.title === "function")
             //     this.title = this.currentScene?.title?.(context, this);
@@ -57,13 +58,12 @@ export class Emulator {
     };
     back(_sceneName, context = this.context) {
         let d = this.history.pop();
-     //   console.log("backing to ", d)
         if (d) this.goto(d);
         else this.goto(_sceneName);
     };
     history = [];
 
-    load(context) { this.context = new Context(); return this; };
+    load(context) { this.context = Table(); return this; };
     save() { return this.context.raw.toString() };
     command(cstr) { eval(cstr) };
     /**
@@ -76,31 +76,48 @@ export class Emulator {
     env;
 
 }
+/**
+ 关于plot模式
+ 点一下往下进的这种操作
+ 所以怎么搞不好说
+ template，render？
+ template就是一个【】，每往下一项就往context里写东西，有分支？那是不是要跳转
+ templateTemplate就不能有跳转的操作就连控制流都不可以但是但是可以打给控制内容什么的
+ Reader是不一样render的控制更加细致但是调用render跟内使用template是不一样的
+ 每次点击一会向render传递一个context然后render返回一个最小result对象华航
+ 这个result对象可能表达一个命令比如跳转之类的比如修改变量也可能会返回一些包裹包裹的字符串
+ render返回命令，继续，回退，或者什么
+ */
 class Scene {
     constructor(sceneDef) {
         this.id = sceneDef.id;
-        Object.assign(this,sceneDef);
-        if(!this.type)this.type="scene";
-        switch(this.type){
-case "scene":{break;}
-case "plot":{break;}
+        Object.assign(this, sceneDef);
+        if (!this.type) this.type = "scene";
+        switch (this.type) {
+            case "scene": { 
+                if (sceneDef.inputs) this.inputs = sceneDef.inputs.map(i => new Input(i));
+
+                if (typeof sceneDef.title == 'function') this.title = sceneDef.title;
+                else this.title = it => sceneDef.title ?? "";
+
+                if (typeof sceneDef.render == 'function') this.render = sceneDef.render;
+                else this.render = (context, emulator) => (sceneDef.render ?? sceneDef.template ?? "Hello Emulator");
+
+                //views
+                if (sceneDef.watch) this.watch = sceneDef.watch;
+                ;break; }
+            case "plot": { 
+                
+                
+                ;break; }
         }
-        
-        // if (sceneDef.inputs) this.inputs = sceneDef.inputs.map(i => new Input(i));
 
-        // if (typeof sceneDef.title == 'function') this.title = sceneDef.title;
-        // else this.title = it => sceneDef.title ?? "";
 
-        // if (typeof sceneDef.render == 'function') this.render = sceneDef.render;
-        // else this.render = (context, emulator) => (sceneDef.render ?? sceneDef.template ?? "Hello Emulator");
-
-        // //views
-        // if (sceneDef.watch) this.watch = sceneDef.watch;
 
     }
     title = i => ""
     id;
-    render() { }
+    //render() { }
 
 }
 class Input {
@@ -110,16 +127,16 @@ class Input {
     disabled = (context, emulator) => false;
     label = "";
     group = []
-    static Button=1;
-    static Text=2;
-    static Select=3;
+    static Button = 1;
+    static Text = 2;
+    static Select = 3;
 }
 class InputButton extends Input {
-    type=Input.Button
+    type = Input.Button
 }
 class InputText extends Input {
-    type=Input.Text
+    type = Input.Text
 }
 class InputSelect extends Input {
-    type=Input.Select
+    type = Input.Select
 }

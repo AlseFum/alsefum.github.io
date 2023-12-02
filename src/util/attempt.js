@@ -1,0 +1,1 @@
+export default (i, c, e) => { if (typeof i !== "function") return i; else return i(c, e) }

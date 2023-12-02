@@ -3,8 +3,9 @@ import {ref}from 'vue'
 let props = defineProps(["active"])
 
 let isActive=ref(props.active??false) ;
-function trigger(){
-    isActive.value=!isActive.value;
+function trigger(bo){
+    if(bo === undefined)    isActive.value=!isActive.value;
+    else if(typeof bo ==='boolean') isActive.value=bo;
 }
 defineExpose({trigger})
 </script>

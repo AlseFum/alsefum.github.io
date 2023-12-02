@@ -1,42 +1,53 @@
 <script setup>
-import { ref, watch, onMounted, onUnmounted, computed, inject } from 'vue'
+import { ref, watch, onMounted, onUnmounted, computed, } from 'vue'
 import modal from '../components/modal.vue'
 import switchVue from '../components/switch.vue';
 import emuInput from '../components/emuInput.vue'
 import emuWatch from '../components/emuWatch.vue';
-import { Emulator, Context } from '../emulation'
+import { Emulator } from '../emulation'
 import { useRoute } from 'vue-router'
 let route = useRoute();
 import useState from '../storage'
 let store = useState();
 
-const props = defineProps({ emulation: { type: Object } })
-
 import presets from '../emulation/presets/index.js'
 
 let curEmuInst = ref(null);
-let currentScene = computed(() => curEmuInst.value.currentScene)
+let currentScene = computed(() => curEmuInst?.value?.currentScene)
+watch(currentScene, (nv) => {
+  if (nv?.type === 'plot') {
+    plotinit();
+  }
+})
 function rerender() {
   env.print(curEmuInst.value.currentScene.render(curEmuInst.value.context, curEmuInst.value));
 }
 let env = { print(n) { stageHTML.value = n; }, rerender }
 function loadEmuRaw(n) {
   curEmuInst.value = new Emulator(n, env);
-  if (curEmuInst.value.title) store.title = curEmuInst.value.title;
-  currentScene.value = curEmuInst.value.currentScene;
-  console.log(currentScene.value)
+
+  if (curEmuInst.title) store.title = curEmuInst.title;
+
 }
 
 
 
-let stageHTML = ref("")
-let modalMenu = ref();
-let modalDebug = ref();
+let stageHTML = ref("")//displayHTML
+let modalMenu = ref();//DOM
+let contentFrom = ref();//manual or preset
+let modalContent = ref("menu");//STRING ENUM
+let selectedPreset = ref({})//preset selection
+onMounted(() => { selectedPreset.value = presets[0] })
 let debugTextarea = ref();
-
-let sel = ref("");
-let contentFrom = ref();
-
+watch(modalContent, (newValue) => {
+  if (newValue != null) {
+    modalContent.value = newValue;
+    modalMenu.value.trigger(true);
+  } else {
+    modalMenu.value.trigger(false);
+    modalContent.value = newValue;
+  }
+})
 function syncLocal(str) {
   let ret = ref(localStorage.getItem(str));
   watch(ret, (newValue) => {
@@ -44,35 +55,54 @@ function syncLocal(str) {
   })
   return ret;
 }
-let menuEmuManual = syncLocal("storedEmu")
+let menuEmuManual = syncLocal("storedEmu")//if manual,sync the emulation to localStorage
 
-let showBorder = ref(false)
+const plotprocess = ref({ num: 0, plots: [] })//plot模式下的变量
+function plotinit() {
+  plotprocess.value.num = 0;
+  plotprocess.value.plots = [];
+  plotprocess.value.plots.push(currentScene.value.render());
+}
+function plotnext() {
+  plotprocess.value.plots.push(currentScene.value.render(plotprocess.value))
+  if (plotprocess.value.plots[plotprocess.value.plots.length - 1]?.goto) {
+    curEmuInst.value.goto(plotprocess.value.plots[plotprocess.value.plots.length - 1]?.goto)
+  }
+}
+function plotback() {
+  let res = currentScene.value.render(Symbol.for("back"))
+  if (res === true) {
+    plotprocess.value.num--;
+    plotprocess.value.plots.pop();
+  }
+}
+
 function runDebug(str) {
-  if (curEmuInst && curEmuInst.value) { let { env, context, scenes, currentScene } = curEmuInst };
+  if (curEmuInst?.value) {
+    let { env, context, scenes, currentScene } = curEmuInst.value
+  };
   let loadExternal = function (str) {
     fetch(str)
       .then(response => response.json())
       .then(json => { console.log("loading", json); loadEmuRaw(json) })
   }
-  console.log(str);
+  console.log("[Debug]" + str);
   return eval(str)
 }
 import table from '../util/table'
-const attempt = (i, c, e) => { if (typeof i === "string") return i; else return i(c, e) }
-inject("attempt", attempt)
+import attempt from '../util/attempt'
 onMounted(() => {
   if (route.query.preset) {
-
     loadEmuRaw(presets.filter(i => i.id == route.query.preset)[0]);
-
   }
-
 })
+
+
 side: {
   onMounted(() => {
     store.side = [
-      ["try", () => { modalMenu.value.trigger() }],
-      ["debug", () => { modalDebug.value.trigger() }],
+      ["menu", () => { modalContent.value = "menu"; modalMenu.value.trigger(true) }],
+      ["debug", () => { modalContent.value = "debug"; modalMenu.value.trigger(true) }],
       ['clear', () => { curEmuInst.value = null; }],
     ]
   })
@@ -84,58 +114,62 @@ side: {
 </script>
 <template>
   <div v-if="!curEmuInst">还没导入呢</div>
-  <div v-else-if="curEmuInst.currentScene.type === 'scene'" :style="showBorder ? 'border:1px white solid' : ''">
+  <div v-if="curEmuInst?.currentScene?.type === 'scene'">
+    <section>
+      <p>
+      <h2>{{ attempt(currentScene?.title, curEmuInst.context, curEmuInst) }}</h2>
+      </p>
+      <pre v-html="stageHTML"></pre>
+    </section>
 
-    
-      <section :style="showBorder ? 'border:1px white solid' : ''">
-        <p>
-        <h2>{{ attempt(currentScene?.title, curEmuInst.context, curEmuInst) }}</h2>
-        </p>
-        <pre v-html="stageHTML"></pre>
-      </section>
+    <section class="inputlist">
+      <emuInput v-for=" i in attempt(currentScene?.inputs, curEmuInst.context, curEmuInst)" :input="i"
+        :context="curEmuInst.context" :emu="curEmuInst">
+        a</emuInput>
+    </section>
 
-      <section class="inputlist" :style="showBorder ? 'border:1px white solid' : ''">
-        <emuInput v-for=" i in curEmuInst?.currentScene?.inputs" :input="i" :context="curEmuInst.context"
-          :emu="curEmuInst">
-        </emuInput>
-      </section>
+    <section v-if="0 && currentScene">
+      watch比较特殊？
+      <emuWatch v-for="csw in currentScene.watch" :pkey="csw?.prop ?? csw" :value="curEmuInst.context[csw?.prop ?? csw]">
+      </emuWatch>
+    </section>
 
-      <section v-if="currentScene">
-        <emuWatch v-for="csw in currentScene.watch" :pkey="csw?.prop ?? csw"
-          :value="curEmuInst.context[csw?.prop ?? csw]">
-        </emuWatch>
-      </section>
 
-    
   </div>
-  <div v-else-if="curEmuInst.currentScene.type === 'plot'">
-  <p v-for="i in 4">plots</p>
-  <p>branch</p>
-  <p>choice</p>
+  <div v-else-if="curEmuInst?.currentScene?.type === 'plot'">
+
+    <p v-for="i in plotprocess.plots">
+      <span v-if="(typeof i === 'string')">{{ i }}</span>
+      <span v-else-if="(typeof i) === 'object'"></span>
+    </p>
+    <!-- <p>branch</p>
+    <p>choice</p> -->
+    <button @click="plotnext">NEXT</button>
+    <button @click="plotback">back </button>
   </div>
 
 
 
   <modal ref="modalMenu" style="display:flex">
-    <br />
-    <switchVue :values='["手动输入", "预设"]' @update="e => { contentFrom = e }"></switchVue>
-    <section v-if="contentFrom == '预设'">
-      <button @click="loadEmuRaw(presets.filter(i => i.id == sel.value)[0])">载入</button>
-      <select ref="sel">
-        <option v-for="p in presets" :value="p.id">{{ p.id }}</option>
-      </select>
-    </section>
-    <section v-if="contentFrom == '手动输入'"><button @click="loadEmuRaw(menuEmuManual)">来！shishi</button>
-      <textarea v-model.value="menuEmuManual"></textarea>
-      <button @click="menuEmuManual = ''">清除</button>
-    </section>
-  </modal>
-  <modal ref="modalDebug" style="display:flex;flex-direction:column">
-    <button @click="showBorder = !showBorder">trigger border</button><br />
-    <button @click="console.log(curEmuInst)"></button>
-    <hr />
-    <textarea id="scripts" cols="30" rows="10" ref="debugTextarea"></textarea>
-    <button @click="runDebug(debugTextarea.value)">run</button>
+    <div v-if="modalContent == 'menu'">
+      <switchVue :values='["手动输入", "预设"]' @update="e => { contentFrom = e }"></switchVue>
+      <section v-if="contentFrom == '预设'">
+        <button @click="loadEmuRaw(presets.filter(i => i.id == selectedPreset)[0])">载入</button>
+        <select v-model="selectedPreset">
+          <option v-for="p in presets" :value="p.id">{{ p.id }}</option>
+        </select>
+      </section>
+      <section v-if="contentFrom == '手动输入'">
+        <button @click="loadEmuRaw(menuEmuManual)">载入</button>
+        <button @click="menuEmuManual = ''">清除</button>
+        <br>
+        <textarea v-model.value="menuEmuManual"></textarea>
+      </section>
+    </div>
+    <div v-if="modalContent == 'debug'">
+      <h6>控制台</h6><button @click="runDebug(debugTextarea.value)">run</button><br>
+      <textarea id="scripts" cols="30" rows="10" ref="debugTextarea"></textarea>
+    </div>
   </modal>
 </template>
 <style scoped>
