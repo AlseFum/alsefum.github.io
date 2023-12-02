@@ -5,7 +5,7 @@ export default {
     scenes: [{
         id: "start",
         type: "plot",
-        render(i) {
+        render(c,e,i) {
             if (typeof i === "object") {
                 i.num++;
                 if (i?.num >= 3) return { goto: "main" }

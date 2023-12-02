@@ -61,12 +61,14 @@ const plotprocess = ref({ num: 0, plots: [] })//plot模式下的变量
 function plotinit() {
   plotprocess.value.num = 0;
   plotprocess.value.plots = [];
-  plotprocess.value.plots.push(currentScene.value.render());
+  plotprocess.value.plots.push(currentScene.value.render(curEmuInst.value.context,curEmuInst.value));
 }
 function plotnext() {
-  plotprocess.value.plots.push(currentScene.value.render(plotprocess.value))
-  if (plotprocess.value.plots[plotprocess.value.plots.length - 1]?.goto) {
-    curEmuInst.value.goto(plotprocess.value.plots[plotprocess.value.plots.length - 1]?.goto)
+  plotprocess.value.plots.push(currentScene.value.render(curEmuInst.value.context,curEmuInst.value,plotprocess.value))
+  let lastplot=plotprocess.value.plots[plotprocess.value.plots.length - 1];
+  console.log(lastplot)
+  if (lastplot?.goto) {
+    curEmuInst.value.goto(lastplot?.goto)
   }
 }
 function plotback() {
