@@ -5,9 +5,7 @@ let ii = shallowReactive(new Idle());
 onMounted(() => {
     setInterval(() => ii.tick(), 1000);
 })
-let newtype=ref("")
 function find(n, s) {
-    console.log(n)
     for (let i of n) {
         if (i.label === s) return i;
     }
@@ -28,7 +26,10 @@ function craft(str) {
 }
 </script>
 <template>
-    {{ ii.basicPoint }}<br /><button @click="ii.click()">click</button>
+    <h1>{{ ii.basicPoint }}</h1>
+    
+    
+    <button @click="ii.click()">click</button>
     <input type="text" v-model="newtype">
     <button @click="ii.newBlockPd(newtype)">new</button>
     blocks:<br />
@@ -36,9 +37,9 @@ function craft(str) {
         <div v-for="sb in ii.blocks" class="block">
             <div v-if="sb.type == Block.produce">
                 <span style="font-size: 16pt;font-weight:500;">{{ sb.label ?? sb.materialType }}</span><br />
-                <span style="font-size: 12pt;font-weight:500;">{{ sb.tickAmount }}</span>
-                <span v-for="i in sb.tags">{{ i }}</span>
-                slotsunits
+                <span style="font-size: 12pt;font-weight:500;">{{ sb.tickAmount }}/tick</span>
+                <!-- <span v-for="i in sb.tags">{{ i }}</span> -->
+                
             </div>
             <div v-if="sb.type==Block.functional">
             nihao</div>
@@ -56,6 +57,7 @@ function craft(str) {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     margin: 0 auto;
+    padding:30px 30px;
 }
 
 .block {

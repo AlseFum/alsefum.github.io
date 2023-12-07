@@ -20,7 +20,6 @@ const custyle=ref("")
           </div><br/>
         </section>
         <section >
-        <router-link  :to="{ name: 'Emulator' }">emulator</router-link><br />
         <router-link  :to="{ name: 'Dice' }">dice</router-link><br />
       </section>
     </aside>

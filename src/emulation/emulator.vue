@@ -2,8 +2,8 @@
 import { ref, watch, onMounted, onUnmounted, computed, } from 'vue'
 import modal from '../components/modal.vue'
 import switchVue from '../components/switch.vue';
-import emuInput from '../components/emuInput.vue'
-import emuWatch from '../components/emuWatch.vue';
+
+import svdefault from './sv/default.vue'
 import { Emulator } from '../emulation'
 import { useRoute } from 'vue-router'
 let route = useRoute();
@@ -91,9 +91,10 @@ function runDebug(str) {
   console.log("[Debug]" + str);
   return eval(str)
 }
-import table from '../util/table'
-import attempt from '../util/attempt'
+const sceneViewInst=ref();
+const sceneView=computed(()=>currentScene.value.type??"default")
 onMounted(() => {
+  console.log(sceneView)
   if (route.query.preset) {
     loadEmuRaw(presets.filter(i => i.id == route.query.preset)[0]);
   }
@@ -116,26 +117,10 @@ side: {
 </script>
 <template>
   <div v-if="!curEmuInst">还没导入呢</div>
+  <component :is="null" ref="sceneView" :currentScene="currentScene" :curEmuInst="curEmuInst" @message="i=>console.log(i)"></component>
   <div v-if="curEmuInst?.currentScene?.type === 'scene'">
-    <section>
-      <p>
-      <h2>{{ attempt(currentScene?.title, curEmuInst.context, curEmuInst) }}</h2>
-      </p>
-      <pre v-html="stageHTML"></pre>
-    </section>
-
-    <section class="inputlist">
-      <emuInput v-for=" i in attempt(currentScene?.inputs, curEmuInst.context, curEmuInst)" :input="i"
-        :context="curEmuInst.context" :emu="curEmuInst">
-        a</emuInput>
-    </section>
-
-    <section v-if="0 && currentScene">
-      watch比较特殊？
-      <emuWatch v-for="csw in currentScene.watch" :pkey="csw?.prop ?? csw" :value="curEmuInst.context[csw?.prop ?? csw]">
-      </emuWatch>
-    </section>
-
+    
+    <svdefault :current-scene="currentScene" :cur-emu-inst="curEmuInst"></svdefault>
 
   </div>
   <div v-else-if="curEmuInst?.currentScene?.type === 'plot'">

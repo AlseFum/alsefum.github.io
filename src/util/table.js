@@ -60,7 +60,7 @@ export default function (_proto, keyIfArray) {
             }
             let res = obj.get(prop);
             
-            if(prop.startsWith&&!prop.startsWith("_"))console.log("prop:", prop, "  res:", res)
+            
             if (res === undefined) return proto.get ? proto.get(prop) : proto?.[prop]
             return res;
         },
