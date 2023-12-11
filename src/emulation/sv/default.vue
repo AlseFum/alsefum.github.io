@@ -5,23 +5,26 @@ let props=defineProps(["currentScene","curEmuInst"])
 const currentScene=computed(()=>props.currentScene)
 const curEmuInst=computed(()=>props.curEmuInst)
 let stageHTML=ref("")
-onMounted(()=>{stageHTML.value=currentScene.value.render(currentScene.value,curEmuInst.value,"a"+34)})
+let emits=defineEmits(["message"])
+defineExpose({print(n){stageHTML.value=n;},
+message(n){}})
+
 </script>
 <template>
-    <section>
+    <!-- <section>
       <p>
-      <h2>{{ attempt(currentScene?.title, curEmuInst.context, curEmuInst) }}</h2>
+      <h2>{{ attempt(currentScene?.title, curEmuInst?.context, curEmuInst) }}</h2>
       </p>
       <pre>{{ currentScene.render(currentScene,curEmuInst,"a") }}</pre>
       <pre v-html="stageHTML"></pre>
-    </section>
+    </section> -->
 
-    <section class="inputlist">
+    <!-- <section class="inputlist">
         {{ attempt(currentScene?.inputs, curEmuInst.context, curEmuInst) }}
-      <!-- <emuInput v-for=" i in attempt(currentScene?.inputs, curEmuInst.context, curEmuInst)" :input="i"
+      <emuInput v-for=" i in attempt(currentScene?.inputs, curEmuInst.context, curEmuInst)" :input="i"
         :context="curEmuInst.context" :emu="curEmuInst">
-        a</emuInput> -->
-    </section>
+        a</emuInput>
+    </section> -->
 
     <!-- <section v-if="0 && currentScene">
       watch比较特殊？

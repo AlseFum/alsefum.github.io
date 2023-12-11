@@ -1,30 +1,4 @@
 export default function (_proto, keyIfArray) {
-
-    // let ret={
-    //     [Symbol.iterator](){
-    //         return function*(){
-    //             let d=Object.entries(this);
-    //             for(let i in d){
-    //                 yield i;
-    //             }
-    //         }
-    //     }
-    // }
-    // if (!Array.isArray(_proto)) return Object.assign({}, _proto)
-    // else if (_proto instanceof Map) {
-    //     let ret = {};
-    //     for (let i in _proto.entries) {
-    //         ret[i[0]] = ret[i][1]
-    //     } return ret;
-    // } else {
-    //     let ret = {}
-    //     for (let i in _proto) {
-    //         ret[_proto[i][keyIfArray]] = _proto[i]
-    //     }
-    //     return ret;
-
-    // }
-    //只是把proto按键转化为map
     let proto;
     if (!(_proto instanceof Map)) {
         if (!(_proto instanceof Array) || !keyIfArray) {

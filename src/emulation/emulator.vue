@@ -1,9 +1,15 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted, computed, } from 'vue'
+//@ts-ignore
 import modal from '../components/modal.vue'
 import switchVue from '../components/switch.vue';
 
+//@ts-ignore
 import svdefault from './sv/default.vue'
+import svplot from './sv/plot.vue'
+const sv = {
+  default:svdefault,plot:svplot
+}
 import { Emulator } from '../emulation'
 import { useRoute } from 'vue-router'
 let route = useRoute();
@@ -14,40 +20,18 @@ import presets from '../emulation/presets/index.js'
 
 let curEmuInst = ref(null);
 let currentScene = computed(() => curEmuInst?.value?.currentScene)
-watch(currentScene, (nv) => {
-  if (nv?.type === 'plot') {
-    plotinit();
-  }
-})
-function rerender() {
-  env.print(curEmuInst.value.currentScene.render(curEmuInst.value.context, curEmuInst.value));
-}
-let env = { print(n) { stageHTML.value = n; }, rerender }
+
+let env = { print(n) { sceneViewInst.value?.print?.(n) }}
 function loadEmuRaw(n) {
   curEmuInst.value = new Emulator(n, env);
-
   if (curEmuInst.title) store.title = curEmuInst.title;
-
 }
 
-
-
-let stageHTML = ref("")//displayHTML
 let modalMenu = ref();//DOM
 let contentFrom = ref();//manual or preset
-let modalContent = ref("menu");//STRING ENUM
-let selectedPreset = ref({})//preset selection
-onMounted(() => { selectedPreset.value = presets[0] })
-let debugTextarea = ref();
-watch(modalContent, (newValue) => {
-  if (newValue != null) {
-    modalContent.value = newValue;
-    modalMenu.value.trigger(true);
-  } else {
-    modalMenu.value.trigger(false);
-    modalContent.value = newValue;
-  }
-})
+const menuContent = ref("");
+
+
 function syncLocal(str) {
   let ret = ref(localStorage.getItem(str));
   watch(ret, (newValue) => {
@@ -57,27 +41,7 @@ function syncLocal(str) {
 }
 let menuEmuManual = syncLocal("storedEmu")//if manual,sync the emulation to localStorage
 
-const plotprocess = ref({ num: 0, plots: [] })//plot模式下的变量
-function plotinit() {
-  plotprocess.value.num = 0;
-  plotprocess.value.plots = [];
-  plotprocess.value.plots.push(currentScene.value.render(curEmuInst.value.context,curEmuInst.value));
-}
-function plotnext() {
-  plotprocess.value.plots.push(currentScene.value.render(curEmuInst.value.context,curEmuInst.value,plotprocess.value))
-  let lastplot=plotprocess.value.plots[plotprocess.value.plots.length - 1];
-  console.log(lastplot)
-  if (lastplot?.goto) {
-    curEmuInst.value.goto(lastplot?.goto)
-  }
-}
-function plotback() {
-  let res = currentScene.value.render(Symbol.for("back"))
-  if (res === true) {
-    plotprocess.value.num--;
-    plotprocess.value.plots.pop();
-  }
-}
+
 
 function runDebug(str) {
   if (curEmuInst?.value) {
@@ -91,21 +55,23 @@ function runDebug(str) {
   console.log("[Debug]" + str);
   return eval(str)
 }
-const sceneViewInst=ref();
-const sceneView=computed(()=>currentScene.value.type??"default")
+const sceneViewInst = ref();
+const sceneView = computed(() => currentScene.value?.type ?? "default")
 onMounted(() => {
-  console.log(sceneView)
   if (route.query.preset) {
     loadEmuRaw(presets.filter(i => i.id == route.query.preset)[0]);
   }
 })
-
+onMounted(()=>{
+  console.log(sceneViewInst.value)
+  sceneViewInst.value.message("from main:nihao!");
+})
 
 side: {
   onMounted(() => {
     store.side = [
-      ["menu", () => { modalContent.value = "menu"; modalMenu.value.trigger(true) }],
-      ["debug", () => { modalContent.value = "debug"; modalMenu.value.trigger(true) }],
+      ["menu", () => { modalMenu.value.trigger(true) }],
+      ["debug", () => { modalMenu.value.trigger(true) }],
       ['clear', () => { curEmuInst.value = null; }],
     ]
   })
@@ -117,46 +83,39 @@ side: {
 </script>
 <template>
   <div v-if="!curEmuInst">还没导入呢</div>
-  <component :is="null" ref="sceneView" :currentScene="currentScene" :curEmuInst="curEmuInst" @message="i=>console.log(i)"></component>
-  <div v-if="curEmuInst?.currentScene?.type === 'scene'">
+  <component :is="sv[sceneView]" ref="sceneViewInst" :currentScene="currentScene" :curEmuInst="curEmuInst" @message="i => console.log('received at main:',i)">
+  </component>
+
+
+
+  <modal ref="modalMenu" style="display:flex;" innerStyle="display:block;width:600px;height:400px;">
+    <div style="float:left;height:100%;width:20%;display:flex;flex-direction: column;">
+      <button v-for="i in ['menu', 'debug', 'clear']" @click="() => { menuContent = i; console.log(menuContent) }">
+        {{ i }}</button>
+    </div>
+    <div style="float:right;height:100%;width:80%">
+      <div v-if="menuContent == 'menu'">
+        <switchVue :values='["手动输入", "预设"]' @update="e => { contentFrom = e }"></switchVue>
+        <section v-if="contentFrom == '预设'">
+          <button @click="loadEmuRaw(presets.filter(i => i.id == selectedPreset)[0])">载入{{ sef }}</button>
+          <select v-model="selectedPreset">
+            <option v-for="p in presets" :value="p.id">{{ p.id }}</option>
+          </select>
+
+        </section>
+        <section v-if="contentFrom == '手动输入'">
+          <button @click="loadEmuRaw(menuEmuManual)">载入</button>
+          <button @click="menuEmuManual = ''">清除</button>
+          <br>
+          <textarea v-model.value="menuEmuManual"></textarea>
+        </section>
+      </div>
+      <div v-if="menuContent == 'debug'">
+      <h6>控制台</h6><button @click="runDebug(debugText)">run</button><br>
+      <textarea id="scripts" cols="30" rows="10" v-model.value="debugText"></textarea>
+    </div> 
+    </div>
     
-    <svdefault :current-scene="currentScene" :cur-emu-inst="curEmuInst"></svdefault>
-
-  </div>
-  <div v-else-if="curEmuInst?.currentScene?.type === 'plot'">
-
-    <p v-for="i in plotprocess.plots">
-      <span v-if="(typeof i === 'string')">{{ i }}</span>
-      <span v-else-if="(typeof i) === 'object'"></span>
-    </p>
-    <!-- <p>branch</p>
-    <p>choice</p> -->
-    <button @click="plotnext">NEXT</button>
-    <button @click="plotback">back </button>
-  </div>
-
-
-
-  <modal ref="modalMenu" style="display:flex">
-    <div v-if="modalContent == 'menu'">
-      <switchVue :values='["手动输入", "预设"]' @update="e => { contentFrom = e }"></switchVue>
-      <section v-if="contentFrom == '预设'">
-        <button @click="loadEmuRaw(presets.filter(i => i.id == selectedPreset)[0])">载入</button>
-        <select v-model="selectedPreset">
-          <option v-for="p in presets" :value="p.id">{{ p.id }}</option>
-        </select>
-      </section>
-      <section v-if="contentFrom == '手动输入'">
-        <button @click="loadEmuRaw(menuEmuManual)">载入</button>
-        <button @click="menuEmuManual = ''">清除</button>
-        <br>
-        <textarea v-model.value="menuEmuManual"></textarea>
-      </section>
-    </div>
-    <div v-if="modalContent == 'debug'">
-      <h6>控制台</h6><button @click="runDebug(debugTextarea.value)">run</button><br>
-      <textarea id="scripts" cols="30" rows="10" ref="debugTextarea"></textarea>
-    </div>
   </modal>
 </template>
 <style scoped>

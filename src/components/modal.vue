@@ -1,6 +1,6 @@
 <script setup>
 import {ref}from 'vue'
-let props = defineProps(["active"])
+let props = defineProps(["active","innerStyle"])
 
 let isActive=ref(props.active??false) ;
 function trigger(bo){
@@ -11,7 +11,7 @@ defineExpose({trigger})
 </script>
 <template>
     <div v-if="isActive" class="shadow" @click="() => { isActive = false; }">
-        <div  class="modal" @click.stop>
+        <div  class="modal" :style="innerStyle" @click.stop>
             <slot></slot>
         </div>
     </div>
