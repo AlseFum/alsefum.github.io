@@ -1,54 +1,42 @@
-class World{
-    ctx=new Map();
-    open(){}
-    choosefor(){
+import uh from '../util/uniquehex.js'
+let uhgene = uh();
+export class World {
+    constructor(i) { Object.assign(this, i); this.hash = uhgene() }
+    new() { return Object.create(this) }
+    receive(entity) {
+        //在这里检查是否能添加entity
+        this.entities.push(entity)
+    }
+    tick() {
+        console.log("worldtick")
+    }
+    choosefor() {
         return []
     }
+    title = "Town.Hamlet"
+    entities = []
+    bp = 0;
+    stable;//不常变的变量列表
+    flexible;//常变的变量列表
 }
-class Entity{
-    ctx=new Map();
-    enterWorld(){};
-    static tick(ec,wc){
-        wc.choosefor(ec).exec(ec,wc,this)
+export class Entity {
+    constructor(i) { Object.assign(this, i); this.hash = uhgene() }
+    name="John Doe";
+    new() { return Object.create(this) }
+    tick(wc, we) {
+        wc.bp += 1;
+        we.log("hell yeah")
     }
 }
-class Event{
-    exec(){
-
+export class Prop{
+    constructor(n){
+        Object.assign(this,n)
     }
-    examp1(ec){
-        ec.gainStatus(Drunk(1));
-
-    }
-    tempttogain(){}
-}
-function EventList(){}
-EventList.prototype.__proto__=Array.prototype;
-class Status{
-    name;
-    category;//stable relation orwhat
-    static findName(){
-
-    }
-}
-class requirement{
-
-}
-function tempt(requirelist){
-    //如果都过了，一一执行
-}
-
-let w=new World();
-let wc=w.open();
-let e=new Entity();
-let ec=e.enterWorld(wc);
-
-function show(){
-    return e.status,e.prop;
-}
-function main(){
-    setInterval();
-    Entity.tick(ec,wc,this);
-    World.tick(wc,this);
-    clearInterval();
+    //关于如何解析
+    //最简单的是一个字符串，直接体现原obj的键值，没有默认值
+    //default;
+    //render(){};
+    //template"" 会被方块包裹。应该用{{}}插值？
+    //template 【】一系列条件对应的{{}}插值
+    //形式应该是 [[key,comm,value1,value2,template]]
 }

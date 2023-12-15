@@ -1,67 +1,56 @@
 <script setup>
-
+//@ts-ignore
+import iswv from './isWorldView.vue'
+import { World } from './statics'
+import { knightsim,worldTemplates } from './exp';
+//@ts-ignore
+import isStore from './isStore.js'
+//@ts-ignore
+import {ref,onMounted,onUnmounted} from 'vue'
+const newworldselection=ref(worldTemplates?.[0]);
+const store = isStore();
+store.setWorld("exp",knightsim.new())
+store.setWorld("lips", knightsim.new())
+function tsw(n,v){
+   
+    if(n ===''||n===undefined){alert("空");return;}
+    if(store.getWorld(n)){alert("已经存在");return;}
+    store.setWorld(n,v);
+}
+function destructWorld(world){
+    let sd = store.worlds;
+    for (const key in sd) {
+        if (sd[key] === world) {
+            delete sd[key];
+            break;
+        }
+    }
+}
+import gs from '../storage'
+onMounted(()=>gs().title="IdleSim")
+onUnmounted(()=>gs().title="")
 </script>
 <template>
-    <section class="worldarea">
-        <h2>hamlet</h2>
-        world information
-        variables
-        function
-        save load
-        another world
-        <div><button v-for="i in ['save', 'load']">{{ i }}</button></div>
-    </section>
-    <section class="entityarea">entityhash informations and tools here
-        <article class="singleentity">
-            <div style="width:30%">#hash here <span style="font-size: 24pt;font-weight: 700;">heroname</span><br>
-                aflow of tags
-                <div>
-                    <div v-for="i in 15"
-                        style="display: inline-block;backdrop-filter: brightness(20%);gap:5px;background-color: grey;">nihao
-                    </div>
-                </div>
-                <button v-for="i in 10">btn</button>
-            </div>
-            <div style="width:50%;word-wrap: break-word;">
-                <span>lines</span>
-            </div>
-        </article>
-        <article class="singleentity" v-for="i in 3">
-            entity:name,status
-            <button v-for="i in 5">option {{ i }}</button>
-            <br>
-            logs
-        </article>
-    </section>
+
+    <div>
+        <select v-model="newworldselection">
+            <option v-for="wt in worldTemplates" :value="wt">{{ wt.title }}</option>
+        </select>
+        <input type="text" v-model="newworldname"><button @click="tsw(newworldname,newworldselection.new())">NEW</button></div>
+    <div class="container">
+        <iswv v-for="world in store.worlds" :world="world" @destruct="destructWorld(world)">{{ world }}</iswv>
+    <br>
+    <br>
+
+    </div>s
 </template>
-<style >
-
-.worldarea {
-    display: block;
-    position: relative;
-    width: 80%;
-    border-radius: 20px;
-    margin: 20px;
-    height: 200px;
-    backdrop-filter: brightness(150%);
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+<style scoped>
+.container {
+    height: 90vh;
+    margin: 10px;
+    overflow: auto;
+    padding-bottom: 40px;
+    text-align:left;
+    padding-left:20px;
 }
-@media screen and (max-width: 414px) {
-
-}
-.entityarea {
-    display: flex;
-    flex-direction: column;
-    border-radius: 10px;
-    gap: 15px;
-    margin: 20px;
-    margin-left: 3px;
-}
-
-.singleentity {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-    backdrop-filter: brightness(160%);
-}</style>
+</style>
