@@ -7,6 +7,7 @@ import n from '../idle/n.vue'
 export default createRouter({
     routes: [
         { path: "/dice", component: dice, name: "Dice" },
+        {path:"/n",component:n,name:"N"}
         // { path: "/emulator", component: emulator, name: "Emulator" },
     //    { path: "/idlesim", component: idleSim, name: "IdleSim" }
     ],
