@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
 import dice from './dice.vue'
-//import idleSim from '../idle/idleSim.vue'
+import idleSim from '../idle/idleSim.vue'
 // import emulator from '../emulation/emulator.vue'
 export default createRouter({
     routes: [
