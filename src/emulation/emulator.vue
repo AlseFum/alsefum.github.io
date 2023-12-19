@@ -1,10 +1,9 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted, computed, } from 'vue'
-//@ts-ignore
 import modal from '../components/modal.vue'
 import switchVue from '../components/switch.vue';
 
-//@ts-ignore
+
 import svdefault from './sv/default.vue'
 import svplot from './sv/plot.vue'
 const sv = {

@@ -1,11 +1,9 @@
 <script setup>
-//@ts-ignore
+
 import iswv from './isWorldView.vue'
 import { World } from './statics'
 import { knightsim, worldTemplates } from './exp';
-//@ts-ignore
 import isStore from './isStore.js'
-//@ts-ignore
 import { ref, onMounted, onUnmounted } from 'vue'
 const newworldselection = ref(worldTemplates?.[0]);
 const store = isStore();
