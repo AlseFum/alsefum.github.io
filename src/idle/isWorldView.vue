@@ -46,17 +46,14 @@ const emits=defineEmits(["destruct"])
 <template>
     <section class="worldarea">
 
-        <h2>{{ curWorld?.title ?? "" }}</h2>
-        world information
-        variables
-        function
-        save load
+        <h2>{{ curWorld?.name ??curWorld?.title ?? "" }}</h2>
+        <pre>{{ curWorld.description }}</pre>
         
-        <button @click="() => curWorld.tick()">worldtick</button>
+        <button @click="() => curWorld.tick()">single step</button>
         <button @click="() => timer ? stopTimer() : startTimer()"> {{ timer ? "stop" : "start" }}</button>
-        <div><button v-for="i in ['save', 'load']">{{ i }}</button></div>
-        <button @click="fold = !fold"> fold</button>
-
+        <!-- <div><button v-for="i in ['save', 'load']">{{ i }}</button></div> -->
+        <button style="float:right" @click="fold = !fold"> fold</button>
+<br/>
         <select v-model="newentityselection">
             <option v-for="et in entityTemplates" :value="et">{{ et.name}}</option>
         </select>

@@ -2,7 +2,7 @@ import uh from '../util/uniquehex.js'
 let uhgene = uh();
 export class World {
     constructor(i) { Object.assign(this, i); this.hash = uhgene() }
-    new() { return Object.create(this) }
+    new(n) { return Object.assign(Object.create(this),n) }
     receive(entity) {
         //在这里检查是否能添加entity
         this.entities.push(entity)
@@ -13,6 +13,7 @@ export class World {
     choosefor() {
         return []
     }
+    description="No description"
     title = "Town.Hamlet"
     entities = []
     bp = 0;
