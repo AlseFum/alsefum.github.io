@@ -1,35 +1,35 @@
 <script setup>
 
-import iswv from './isWorldView.vue'
-import { World } from './statics'
-import { knightsim, worldTemplates } from './exp';
-import isStore from './isStore.js'
-import { ref, onMounted, onUnmounted } from 'vue'
-const newworldselection = ref(worldTemplates?.[0]);
-const store = isStore();
-store.setWorld("exp", knightsim.new())
-store.setWorld("lips", knightsim.new())
-function tsw(n, v) {
-    //  if(n ===''||n===undefined){alert("空");return;}
-    if (store.getWorld(n)) { alert("已经存在"); return; }
-    store.setWorld(n, v);
-}
-function destructWorld(world) {
-    let sd = store.worlds;
-    for (const key in sd) {
-        if (sd[key] === world) {
-            delete sd[key];
-            break;
-        }
-    }
-}
-import gs from '../storage'
-onMounted(() => gs().title = "IdleSim")
-onUnmounted(() => gs().title = "")
-const sidefold=ref(false)
+// import iswv from './isWorldView.vue'
+// import { World } from './statics'
+// import { knightsim, worldTemplates } from './exp';
+// import isStore from './isStore.js'
+// import { ref, onMounted, onUnmounted } from 'vue'
+// const newworldselection = ref(worldTemplates?.[0]);
+// const store = isStore();
+// store.setWorld("exp", knightsim.new())
+// store.setWorld("lips", knightsim.new())
+// function tsw(n, v) {
+//     //  if(n ===''||n===undefined){alert("空");return;}
+//     if (store.getWorld(n)) { alert("已经存在"); return; }
+//     store.setWorld(n, v);
+// }
+// function destructWorld(world) {
+//     let sd = store.worlds;
+//     for (const key in sd) {
+//         if (sd[key] === world) {
+//             delete sd[key];
+//             break;
+//         }
+//     }
+// }
+// import gs from '../storage'
+// onMounted(() => gs().title = "IdleSim")
+// onUnmounted(() => gs().title = "")
+// const sidefold=ref(false)
 </script>
 <template>
-    <div class="wrapper">
+    <!-- <div class="wrapper">
     <div style="flex-grow:3;">
         <select v-model="newworldselection">
             <option v-for="wt in worldTemplates" :value="wt">{{ wt.title }}</option>
@@ -45,7 +45,7 @@ const sidefold=ref(false)
     <div style="flex-grow:0;min-width: 3px;" :style="{flexGrow:sidefold?1:0}">
         <button @click="sidefold=!sidefold">detail</button>
         </div>
-</div>
+</div> -->
 </template>
 <style scoped>
 .wrapper{
