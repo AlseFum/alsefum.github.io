@@ -1,12 +1,12 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-//@ts-ignore
-import isev from './isEntityView.vue'
 import isStore from './isStore.js'
 const store = isStore();
 const props = defineProps(["world", "wid"])
 const curWorld = computed(() => props.world ?? store.getWorld(props.wid))
 const curEntities = computed(() => curWorld.value?.entities ?? [])
+//@ts-ignore
+import isev from './isEntityView.vue'
 
 const timer = ref(0);
 function startTimer() { timer.value = setInterval(() => curWorld.value.tick(), 1000) }
@@ -20,16 +20,16 @@ onMounted(startTimer)
 onUnmounted(stopTimer)
 let fold = ref(false)
 
-import { JohnDoe,entityTemplates } from './exp';
-const newentityselection=ref(entityTemplates[0])
+import { JohnDoe, entityTemplates } from './exp';
+const newentityselection = ref(entityTemplates[0])
 function newEntity() {
-    let n=newentityselection.value.name;
-    for(let i of entityTemplates){
-        if(i.name===n){
+    let n = newentityselection.value.name;
+    for (let i of entityTemplates) {
+        if (i.name === n) {
             curWorld.value.receive(i.new());
         }
     }
-    
+
 }
 function destructEntity(entity, world) {
     world.entities.splice(world.entities.indexOf(entity), 1);
@@ -41,39 +41,40 @@ function destructEntity(entity, world) {
         }
     }
 }
-const emits=defineEmits(["destruct"])
+const emits = defineEmits(["destruct"])
 </script>
 <template>
     <section class="worldarea">
 
-        <h2>{{ curWorld?.name ??curWorld?.title ?? "" }}</h2>
+        <h2>{{ curWorld?.name ?? curWorld?.title ?? "" }}</h2>
         <pre>{{ curWorld.description }}</pre>
-        
-        <button @click="() => curWorld.tick()">single step</button>
-        <button @click="() => timer ? stopTimer() : startTimer()"> {{ timer ? "stop" : "start" }}</button>
-        <!-- <div><button v-for="i in ['save', 'load']">{{ i }}</button></div> -->
+
+        <button style="float:right" @click="() => curWorld.tick()">single step</button>
+        <button style="float:right" @click="() => timer ? stopTimer() : startTimer()"> {{ timer ? "stop" : "start"
+        }}</button>
         <button style="float:right" @click="fold = !fold"> fold</button>
-<br/>
-        <select v-model="newentityselection">
-            <option v-for="et in entityTemplates" :value="et">{{ et.name}}</option>
-        </select>
-        <input type="text" v-model="newentityname">
-        
-        <button @click="newEntity">add Entity</button>
+        <br />
+        <div v-show="!fold">
+            <select v-model="newentityselection">
+                <option v-for="et in entityTemplates" :value="et">{{ et.name }}</option>
+            </select>
+            <input type="text" v-model="newentityname">
 
-        <button @click="emits('destruct')">🗑️</button>
-        <section class="entityarea" v-show="!fold">entityhash informations and tools here
-            <isev v-for="entity in curEntities" :entity="entity" :world="curWorld"
-                @destruct="() => destructEntity(entity, world)"></isev>
-        </section>
+            <button @click="newEntity">add Entity</button>
 
+            <button @click="emits('destruct')">🗑️</button>
+            <section class="entityarea">entityhash informations and tools here
+                <isev v-for="entity in curEntities" :entity="entity" :world="curWorld"
+                    @destruct="() => destructEntity(entity, world)"></isev>
+            </section>
+        </div>
 
     </section>
 </template>
 <style >
 .worldarea {
     display: block;
-    padding-left:20px;
+    padding-left: 20px;
     border-radius: 20px;
     margin: 20px;
     backdrop-filter: brightness(150%);

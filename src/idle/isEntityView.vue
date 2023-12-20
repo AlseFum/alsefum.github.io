@@ -28,7 +28,7 @@ onMounted(startTimer)
 onUnmounted(stopTimer)
 </script>
 <template>
-    <article class="singleentity">
+    <article class="singleentity" @click.stop="store.entityOnEdit=curEntity">
         <div class="leftarea">
             <span style="font-size:8pt;">#{{ curEntity.hash }}</span>&nbsp;
             <span style="font-size: 24pt;font-weight: 700;">{{ curEntity.name }}</span><br>

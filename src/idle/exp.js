@@ -90,3 +90,46 @@ export const knight = new Entity({
 });
 worldTemplates.push(knightsim)
 entityTemplates.push(knight)
+//////////////////////////
+const ant=new Entity({name:"Ant"})
+function d10(){return Math.ceil(Math.random()*10)}
+const com=new Proxy({},{
+    get(obj,prop){
+        if(prop.match(/^[a-zA-Z]\d$/)){
+            return ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'].indexOf(prop[0].toLowerCase())+10+parseInt(prop.slice(1));
+        }
+    }
+})
+class Stage{
+    distance=0;
+}
+ant.new=function(wc){
+    let ret=Object.create(this);
+    ret.logic=[10,10,10,10,com.m1,10];
+    ret.STR=d10();
+    ret.DEX=d10();
+    ret.CON=d10();
+    ret.INT=d10();
+    ret.weapon={}
+    ret.inFloor=wc?.getFloor?.()??{}
+    ret.inStage=wc?.getStage?.(ret.inFloor)??new Stage
+    return ret;
+}
+ant.tick=function(wc,we){
+    if(this.logicIter===undefined){
+        this.logicIter=0;
+    }
+    if(this.logic[this.logicIter]===10){
+        we.log("a0")
+    }
+    if(this.logic[this.logicIter]===com.m1){
+        we.log("moving");
+        this.inStage.distance+=1;
+        if(this.inStage.distance>=10){
+            we.log("achieved")
+        }
+    }
+    if(this.logicIter>=this.logic.length)this.logicIter=0;
+    this.logicIter++;
+}
+entityTemplates.push(ant)

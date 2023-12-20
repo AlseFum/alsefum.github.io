@@ -1,51 +1,50 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+import iswv from './isWorldView.vue'
+import edit from './edit.vue'
 
-// import iswv from './isWorldView.vue'
-// import { World } from './statics'
-// import { knightsim, worldTemplates } from './exp';
-// import isStore from './isStore.js'
-// import { ref, onMounted, onUnmounted } from 'vue'
-// const newworldselection = ref(worldTemplates?.[0]);
-// const store = isStore();
-// store.setWorld("exp", knightsim.new())
-// store.setWorld("lips", knightsim.new())
-// function tsw(n, v) {
-//     //  if(n ===''||n===undefined){alert("空");return;}
-//     if (store.getWorld(n)) { alert("已经存在"); return; }
-//     store.setWorld(n, v);
-// }
-// function destructWorld(world) {
-//     let sd = store.worlds;
-//     for (const key in sd) {
-//         if (sd[key] === world) {
-//             delete sd[key];
-//             break;
-//         }
-//     }
-// }
-// import gs from '../storage'
-// onMounted(() => gs().title = "IdleSim")
-// onUnmounted(() => gs().title = "")
-// const sidefold=ref(false)
+import isStore from './isStore.js'
+const store = isStore();
+
+
+import { knightsim, worldTemplates } from './exp';
+const newworldselection = ref(worldTemplates?.[0]);
+store.setWorld("exp", knightsim.new({name:"exp"}))
+store.setWorld("lips", knightsim.new({name:"lips"}))
+function tsw(n, v) {
+    if (store.getWorld(n)) { alert("已经存在"); return; }
+    store.setWorld(n, v);
+}
+function destructWorld(world) {
+    let sd = store.worlds;
+    for (const key in sd) {
+        if (sd[key] === world) {
+            delete sd[key];
+            break;
+        }
+    }
+}
+import gs from '../storage'
+onMounted(() => gs().title = "IdleSim")
+onUnmounted(() => gs().title = "")
 </script>
 <template>
-    <!-- <div class="wrapper">
+    <div class="wrapper" @click="store.entityOnEdit=null">
     <div style="flex-grow:3;">
-        <select v-model="newworldselection">
+        <select v-model="newworldselection" style="height:18px;">
             <option v-for="wt in worldTemplates" :value="wt">{{ wt.title }}</option>
         </select>
-        <input type="text" v-model="newworldname"><button @click="tsw(newworldname, newworldselection.new({name:newworldname}))">NEW</button>
+        <input type="text" v-model="newworldname" style="height:18px;"><button @click="tsw(newworldname, newworldselection.new({name:newworldname}))" >NEW</button>
 
         <div class="container">
             <iswv v-for="world in store.worlds" :world="world" @destruct="destructWorld(world)">{{ world }}</iswv>
-            <br>
-            <br>
+            <br><br>
         </div>
     </div>
-    <div style="flex-grow:0;min-width: 3px;" :style="{flexGrow:sidefold?1:0}">
-        <button @click="sidefold=!sidefold">detail</button>
+    <div style="flex-grow:0;min-width: 3px;max-width: 40%;">
+        <edit/>
         </div>
-</div> -->
+</div>
 </template>
 <style scoped>
 .wrapper{
@@ -56,7 +55,7 @@
     height: 90vh;
     margin: 10px;
     overflow: auto;
-    padding-bottom: 40px;
+    margin-bottom: 40px;
     text-align: left;
     padding-left: 20px;
 }

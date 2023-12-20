@@ -4,7 +4,8 @@ export default defineStore("idlesim", {
         return {
             worlds: {},
             entities: {},
-            idleTime: 0
+            idleTime: 0,
+            entityOnEdit:null,
         }
     },
     actions: {
