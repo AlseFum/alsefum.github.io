@@ -14,6 +14,7 @@ const custyle=ref("")
     <div class="mask" @click="fold" v-if="folding" :class="[custyle]">
       <aside class="sidebar" @click.stop>
         <p>你想看什么</p>
+        <p>meism</p>
         <section>
           <div v-if="(store.side instanceof Array)" @click="fold">
             <button class="sidebtn" v-for="op in store.side" @click="op[1]">{{ op[0] }}</button>
