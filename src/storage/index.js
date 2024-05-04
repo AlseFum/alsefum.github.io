@@ -2,7 +2,10 @@ import { defineStore } from "pinia";
 export default defineStore("mainpage",{
     state: () => {
         return {
-            title: "mainpage"
+            title: "mainpage",
+            side:[[
+                "[label]click me!",function(){alert("你点击了我")}]
+            ]
         }
     },
     actions: {

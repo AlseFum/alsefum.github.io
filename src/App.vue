@@ -4,26 +4,25 @@ import useStore from './storage'
 let store = useStore();
 let folding = ref(false);
 function fold() {
-  folding.value = !folding.value;return folding.value;
+  folding.value = !folding.value; return folding.value;
 }
-const custyle=ref("")
+const custyle = ref("")
 
 </script>
 <template>
-  <Transition name="slide-fade"> 
+  <Transition name="slide-fade">
     <div class="mask" @click="fold" v-if="folding" :class="[custyle]">
       <aside class="sidebar" @click.stop>
-        <p>你想看什么</p>
-        <p>meism</p>
         <section>
           <div v-if="(store.side instanceof Array)" @click="fold">
             <button class="sidebtn" v-for="op in store.side" @click="op[1]">{{ op[0] }}</button>
-          </div><br/>
+          </div>
+          <br />
         </section>
-        <section >
-        <router-link  :to="{ name: 'Dice' }">dice</router-link><br />
-      </section>
-    </aside>
+        <section>
+          <router-link :to="{ name: 'Dice' }">dice</router-link><br />
+        </section>
+      </aside>
     </div>
   </Transition>
   <header class="header" :class="[custyle]">
@@ -75,13 +74,14 @@ const custyle=ref("")
   background-color: var(--primary);
   backdrop-filter: invert(0.2);
 }
-.sidebtn{
-  display: block;
-  height:1.8rem;
-  width:60px;
-  margin:0 auto;
 
-  border-radius:6px;
+.sidebtn {
+  display: block;
+  height: 1.8rem;
+  width: 60px;
+  margin: 0 auto;
+
+  border-radius: 6px;
 
   box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
 }
@@ -89,6 +89,7 @@ const custyle=ref("")
 .slide-fade-enter-active {
   transition: all .2s cubic-bezier(1.0, 0.5, 0.8, 1.0);
 }
+
 .slide-fade-leave-active {
   transition: all .2s cubic-bezier(1.0, 0.5, 0.8, 1.0);
 }

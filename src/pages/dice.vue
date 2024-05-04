@@ -51,7 +51,7 @@ function newdice() {
 
     </section>
     <div class="screen" @click="roll">
-        <span style="font-size: 48pt;text-shadow: 0px 3px 3px rgba(255,255,255,0.5);">{{ output }}</span>
+        <span style="user-select: none;font-size: 48pt;text-shadow: 0px 3px 3px rgba(255,255,255,0.5);">{{ output }}</span>
     </div>
     <section class="ul">
         <div v-for="r, i in results" :style="{ fontSize: 28 - i * 2 + 'px' }">{{ r }}</div>
