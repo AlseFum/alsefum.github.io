@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue'
 import useStore from './storage'
 let store = useStore();
+
+
 let folding = ref(false);
 function fold() {
   folding.value = !folding.value; return folding.value;
@@ -15,12 +17,14 @@ const custyle = ref("")
       <aside class="sidebar" @click.stop>
         <section>
           <div v-if="(store.side instanceof Array)" @click="fold">
+     
             <button class="sidebtn" v-for="op in store.side" @click="op[1]">{{ op[0] }}</button>
           </div>
           <br />
         </section>
         <section>
           <router-link :to="{ name: 'Dice' }">dice</router-link><br />
+          <router-link :to="{ name: 'Edifier' }">edifier</router-link><br />
         </section>
       </aside>
     </div>
@@ -29,7 +33,7 @@ const custyle = ref("")
     <button @click="fold" style="width:30px;height:30px;margin:10px;">三</button>
     {{ store.title }}
   </header>
-
+  
   <section :class="[custyle]">
     <router-view></router-view>
   </section>

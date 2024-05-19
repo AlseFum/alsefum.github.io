@@ -5,7 +5,8 @@ export default defineStore("mainpage",{
             title: "mainpage",
             side:[[
                 "[label]click me!",function(){alert("你点击了我")}]
-            ]
+            ],
+            noti:null
         }
     },
     actions: {

@@ -1,6 +1,5 @@
-export default function () {
+export default function (str="0123456789ABCDEF") {
     let gened = new Set();
-    let str = "0123456789ABCDEF"
     return function () {
 
         let ret = str[Math.floor(Math.random() * 16)] + str[Math.floor(Math.random() * 16)] + str[Math.floor(Math.random() * 16)] + str[Math.floor(Math.random() * 16)]+str[Math.floor(Math.random() * 16)] + str[Math.floor(Math.random() * 16)] + str[Math.floor(Math.random() * 16)] + str[Math.floor(Math.random() * 16)];

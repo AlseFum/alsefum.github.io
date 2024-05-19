@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import route from './pages'
 import './style.css'
+import './some.css'
 import App from './App.vue'
 
 let app = createApp(App);

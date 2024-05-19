@@ -1,0 +1,8 @@
+div [hello]{
+    outline: 1px black solid;
+    border-radius: 2px;
+    padding:20px;
+    width:240px;
+    
+    box-shadow: 10px 5px 5px rgba(0, 0, 0, 0.121);
+}
