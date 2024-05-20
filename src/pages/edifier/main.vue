@@ -1,41 +1,47 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { Location, attempt, Content } from "./lib";
-const content = new Content()
-const map_record = new Map()
-const curKey = ref("start")
-map_record.set("start", new Location())
-const curLoc = computed(() =>
-    map_record.get(curKey.value)
-)
-function gonew(n) {
+import { attempt, Game } from "./lib";
+const game = ref(new Game())
+import useStore from '../../storage/index'
+const store = useStore()
+const curLoc = computed(() => {
+    let n = game.value.map_record.get(game.value.curKey);
+    store.title = n.label ?? n.id;
+    return n;
+})
 
-    if(!":" in n){
-        curKey.value=n
-    }
-    else{
-        let res = content.rules[n]()
-    map_record.set(res.name, res)
-    curKey.value = res.name
-    console.log("gonew ", res, n)
-    }
+const auto = ref(false)
+const progress = ref(0)
+import { throttle } from "./lib";
+onMounted(() => {
+    setInterval(() => {
+        if (auto.value) progress.value++
+        if (progress.value > 100) {
+            progress.value = 0;
+            game.value.goto(curLoc.value.options.random(), curLoc.value, game)
 
-}
+        }
+    }, 10)
+})
 </script>
 <template>
-    {{ curLoc.name }}<br/>
+    {{ curLoc.name }}<br />
     <div class="edifier-container">
-
-        <section style="min-width:180px;border:1px white solid;text-align: left;padding-left: 30px;">
-            <p v-for="i in attempt(curLoc.options)" @click="() =>
-                gonew(i)">
-                :{{ i }}</p>
-
-
+{{ game.map_record.size }}
+        <section>
+            <p v-for="i in attempt(curLoc.options)" @click="() => game.goto(i, curLoc, this)">
+                ->{{ i.label??i }}
+            </p>
+            <p>{{ progress }}%<button @click="auto = !auto" style="float:right">自动:{{ auto }}</button></p>
         </section>
 
 
-        <section>plot:<br />
+        <section>
+            <p style="display:inline">
+                <li v-for="w in attempt(curLoc.watch)">{{ curLoc[w] }}</li>
+            </p>
+
+            plot:{{ throttle(2000,()=>attempt({ $$: "rand", max: 10 }) )()}}<br />
             {{ attempt(curLoc.description) }}
         </section>
     </div>
@@ -46,7 +52,20 @@ function gonew(n) {
     justify-content: stretch;
 }
 
+.edifier-container p {
+
+    text-align: left;
+    padding-left: 30px;
+
+}
+
+.edifier-container p li {
+
+    list-style-type: none;
+}
+
 section {
     margin: 20px;
+    min-width:180px;border:1px white solid;
 }
 </style>
