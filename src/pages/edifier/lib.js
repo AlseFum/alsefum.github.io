@@ -4,49 +4,37 @@ export class Location {
     label;
     description = "";
     options = [];
-    state = Location.Default;
+    state
+        = [ //key of location states
+            'knowness'// 0:default 1:discovered 2:mentioned
+        ]
+
     static Default = 0;
     static Discovered = 2;
     static Mentioned = 3;
     watch = [];//key that need to be watched
-    onDiscover(game) {
-
+    onDiscover() {
     }
     onEnter() {
 
     }
     onLeave() {
-
     }
 }
-export function throttle(n,fn){
-    let timer=new Date();
+export function throttle( fn,n=200) {
+    let timer = new Date();
     let lastResult;
-    return ()=>{
-        if(new Date()-timer>n){
-            timer=new Date();
-            lastResult=fn()
+    return () => {
+        if (new Date() - timer > n) {
+            timer = new Date();
+            lastResult = fn()
             return lastResult
-        }else{
+        } else {
             return lastResult;
         }
     }
 }
-function locfromjson(jsonobj) {
-    let inst = new Location()
-    ["id",'label','description','options','watch'].forEach(i => {
-        inst[i] = jsonobj[i]
-    })
-    Object.assign(inst,jsonobj.state)
-    inst.onDiscover=function(game){
-        jsonobj.sub.forEach(i=>{
-            let newsub=game.rules[i](inst,game)
-            inst.options.push(newsub.id)
 
-            game.map_record.set(newsub.id,newsub)
-        })
-    }
-}
 export function attempt(n, ...args) {
     if (n.$$) {
         switch (n.$$) {
@@ -56,128 +44,70 @@ export function attempt(n, ...args) {
                 ))
             case "enum":
                 return n.body?.random?.() ?? null
-                break;
         }
-    }else     return typeof n === "function" ? n(...args) : n
+    } else return typeof n === "function" ? n(...args) : n
 }
 const rules = {
-    start(from, game) {
-        let res = new Location()
-        res.id = "start"
-        let _this = this;
-        res.onDiscover = function (game) {
-            console.log("triigered onDiscover")
-            let t1 = _this.tiny()
-            let t2 = _this.tiny()
-            let t3 = _this.tiny()
-            game.map_record.set(t1.id, t1)
-            game.map_record.set(t2.id, t2)
-            game.map_record.set(t3.id, t3)
-            res.options.push(t1.id, t2.id, t3.id, "building")
-            res.state = Location.Discovered
-        }
-        res.options.push(
-        "distinct"
-        )
-        res.description = "nihao"
-
+    start() {
+        let res = Object.assign(new Location(), {
+            id: "start",
+            description: "nihao",
+            options:['loop'],
+        })
         return res;
-    }, tiny(from, game) {
-        let res = new Location()
-        res.id = "tiny" + Math.floor(Math.random() * 10)
-        res.options = ["start"]
-        res.state = Location.Mentioned
-        return res;
-    },
-    hell:function (from) {
-            let res = new Location()
-            res.id = "Hell " + from.name + Math.random()
-            res.options = ["hell", "N","start"]
-            res.watch = ['heat']
-            res.heat = "1200du"
-            return res;
-        },
-    N: function (_from) {
-        let res = new Location()
-        res.id = "N" + _from.name + Math.random()
-        res.options = ["hell", "N"]
-        res.description = "NNN"
-        return res;
+    },loop(){
+        return Object.assign(new Location(), {
+            id: "loop",
+            description: "some where to return",
+            label:"LOOP",
+            options:['start'],
+        })
     }
 }
-const another={
-    distinct(){
-        let res = new Location()
-        res.id = "Dis."+Math.floor(Math.random()*16)
-        res.options = ["start"]
-        res.label="<distinct>"
-        res.state = Location.Mentioned
-        let _this=this;
-        res.onDiscover=function(game){
-           let res1= _this.building(res,game)
-           game.map_record.set(res1.id,res1)
-           res.options.push(res1.id)
 
-           let res2= _this.building(res,game)
-           game.map_record.set(res2.id,res2)
-           res.options.push(res2.id)
-        }
-        return res
-    }, building: function (_from) {
-        let res = new Location()
-        res.id = "building" + _from.label + Math.floor(Math.random()*256)
-        res.options = ["hell", "start"]
-        res.description = throttle(500,() => Math.random() > 0.5 ? "普通的建筑" : Math.random() > 0.5 ? "有奇异声响的建筑" : "有奇异造型的楼")
-        res.state = Location.Mentioned
-        res.onDiscover = function (game) {
-            let res1= _this.distinct(res,game)
-           game.map_record.set(res1.id,res1)
-           res.options.push(res1.id)
 
-           let res2= _this.distinct(res,game)
-           game.map_record.set(res2.id,res2)
-           res.options.push(res2.id)
-        }
-        return res;
-    }
-}
-Object.assign(rules,another)
 export class Game {
+    //all arguments are (options,game)
     rules = rules;
     map_record = new Map();
     curKey = Game.START;
-    state={};
+    state = [];//key of gamestates
     static START = 'start'
-    constructor() {
-        this.map_record.set(Game.START, this.rules.start(null, this));
-        this.into(Game.START)
+    constructor(rule = rules, save = {}) {
+        //save :unimplemented yet
+        this.rules = rule
+        this.map_record.set(Game.START,this.rules[Game.START](null,this));
+        this.into({ loc_key: Game.START }, this)
+        //no onEnter or onLeave?
     }
-    goto(id, lastLoc, game) {
-        this.map_record.get(this.curKey)?.onLeave?.()
+    into({ loc_key, lastLoc },game) {
+        if(!game)game=this;
+        game.curKey = loc_key;
+        let inst = game.map_record.get(loc_key);
+        if(!inst){console.log("Found no inst for key:",loc_key);return;}
+        if (inst.knowness == Location.Mentioned || inst.knowness == Location.Default) {
+            inst.onDiscover?.(game, lastLoc)
+            inst.knowness = Location.Discovered
+        }
+    }
+    //special cause it's public
+    goto(id, { lastLoc, game  }) {
+        if(game===undefined)game=this
+        else if(id ===undefined)return;
+        if(id.value)id=id.value
+        game.map_record.get(game.curKey)?.onLeave?.({ lastLoc }, game)
 
-        if (this.map_record.has(id)) {
-            
-            let accepted = this.map_record.get(id)?.onEnter?.()
-            if (accepted === false) return ;
-            this.into(id)
+        if (!game.map_record.has(id) && game.rules[id]) {
+            let res = game.rules[id]({ lastLoc }, game);
+            game.map_record.set(res.id, res)
+            id=res.id
+        } else if (!game.rules[id]) {
+            console.log("Uncaught id:",id)
+            return;
         }
-        else if (this.rules[id]) {
-            let res = this.rules[id](lastLoc, game);
-            this.map_record.set(res.id, res)
+        let accepted = game.map_record.get(id)?.onEnter?.({ lastLoc}, game )
+        if (accepted === false) return;
+        game.into({loc_key:id,lastLoc},game )
+    }
 
-            let accepted = this.map_record.get(id)?.onEnter?.()
-            if (accepted === false) return ;
-            this.into(res.id)
-        }
-        
-    }
-    into(n) {
-        this.curKey = n;
-        let inst = this.map_record.get(n);
-        
-        if (inst.state == Location.Mentioned || inst.state == Location.Default) {
-            inst.onDiscover?.(this)
-            inst.state=Location.Discovered
-        }
-    }
 }

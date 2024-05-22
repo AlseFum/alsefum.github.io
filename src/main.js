@@ -7,6 +7,13 @@ import App from './App.vue'
 Array.prototype.random = function () {
     return this[Math.floor(Math.random() * this.length)]
 }
+Math.rand=function(min,max){
+    if(max===undefined){
+        return Math.ceil(Math.random()*min)
+    }
+    return Math.floor(Math.random()*(max-min+1)+min)
+}
+
 let app = createApp(App);
 app.use(createPinia())
 app.use(route)
