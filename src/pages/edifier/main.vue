@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { attempt, Game } from "./lib";
-import {daten } from "./rule1.js";
+import { attempt, Game,valueOr } from "./lib";
+import { daten } from "./rule1.js";
 const game = ref(new Game(daten))
 import useStore from '../../storage/index'
 const store = useStore()
@@ -11,49 +11,49 @@ const curLoc = computed(() => {
     return n;
 })
 
+import { throttle } from "./lib";
 const auto = ref(false)
 const progress = ref(0)
-import { throttle } from "./lib";
 onMounted(() => {
     setInterval(() => {
         if (auto.value) progress.value++
         if (progress.value > 100) {
             progress.value = 0;
             game.value.goto(
-                curLoc.value.options.random(),
+                curLoc.value.options.filter(i=>i.manual!==true).random(),
                 { lastLoc: curLoc.value, game: game.value })
         }
     }, 10)
 })
 import sbtn from '../../components/textbutton.vue'
-
-
-const sbc=throttle(()=>{auto.value=!auto.value},200)
+const sbc = throttle(() => { auto.value = !auto.value }, 200)
+const gv=valueOr("value",'id')
+const label=valueOr("label")
 </script>
 <template>
 
     <div class="edifier-container">
-
         <section>
-            <p v-for="i in attempt(curLoc.options)"
-            @click="() => game.goto(i.value??i, { lastLoc: curLoc })">
-                ->{{ i.label ?? i }}
+            <!-- option part -->
+            <p v-for="i in attempt(curLoc.options)" @click="() => game.goto(gv(i), { lastLoc: curLoc })">
+                ->{{ label(i)}}
             </p>
-            <p><sbtn @click="sbc">{{ progress }}% 自动</sbtn></p>
+            <p>
+                <sbtn @click="sbc">{{ progress }}% 自动</sbtn>
+            </p>
         </section>
 
 
         <section>
+            <!-- plot part -->
             <p style="display:inline">
                 <li v-for="w in attempt(curLoc.watch)">
                     {{ curLoc[w.prop ?? w] }} {{ w.symbol ?? "" }}
                 </li>
             </p>
-            {{curLoc.label}}<br/>
-            
+            {{ curLoc.label }}
+            <br />
             {{ attempt(curLoc.description) }}
-
-            {{ game.map_record.size }}
         </section>
     </div>
 </template>
@@ -74,7 +74,7 @@ const sbc=throttle(()=>{auto.value=!auto.value},200)
 
 .edifier-container section {
     margin: 20px;
-    padding:10px;
+    padding: 10px;
     min-width: 180px;
     border: 1px white solid;
 }
