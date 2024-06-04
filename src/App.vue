@@ -34,7 +34,7 @@ const custyle = ref("")
     {{ store.title }}
   </header>
   
-  <section :class="[custyle]">
+  <section :class="[custyle]" class="container">
     <router-view></router-view>
   </section>
 </template>
@@ -102,5 +102,8 @@ const custyle = ref("")
 .slide-fade-leave-to {
   transform: translateX(-10px);
   opacity: 0;
+}
+.container{
+  border:1px white solid;
 }
 </style>

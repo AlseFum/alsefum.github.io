@@ -9,9 +9,9 @@ Array.prototype.random = function () {
 }
 Math.rand=function(min,max){
     if(max===undefined){
-        return Math.ceil(Math.random()*min)
+        return Math.ceil(Math.random()*min)??null
     }
-    return Math.floor(Math.random()*(max-min+1)+min)
+    return Math.floor(Math.random()*(max-min+1)+min)??null
 }
 
 let app = createApp(App);
